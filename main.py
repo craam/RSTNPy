@@ -46,8 +46,12 @@ class NoaaFTP:
 
 
     def download_data(self):
-        ftp = FTP('ftp.ngdc.noaa.gov')
-        ftp.login()
+        try:
+            ftp = FTP('ftp.ngdc.noaa.gov')
+            ftp.login()
+        except:
+            print("Connection not stablished.")
+            return False
 
         station_name = self.set_station_name()
         ftp.cwd('STP/space-weather/solar-data/solar-features/solar-radio/rstn-1-second')
@@ -62,7 +66,7 @@ class NoaaFTP:
 
         # Absolute path for the file
         local_file = os.path.dirname(os.path.abspath(__file__)) + '/' + filename
-        #ftp.retrbinary(download_name, open(local_file, 'wb').write)
+        ftp.retrbinary(download_name, open(local_file, 'wb').write)
 
         ftp.quit()
 
@@ -75,6 +79,15 @@ class NoaaFTP:
         This function doesn't really decompress the file, it saves the data
         inside a different file with the same name.
         """
+
+        # Checks if the filename varialabe exists.
+        try:
+            if self.filename:
+                print("")
+        except NameError:
+            print("You need to download the file first.")
+            return False
+
         with gzip.open(self.filename, 'rb') as _file:
             file_content = _file.read()
             # Removes .gz from filename.
@@ -82,3 +95,10 @@ class NoaaFTP:
             with open(final_name[0], 'wb') as final_file:
                 # Saves the content to a new file.
                 final_file.write(file_content)
+
+        os.remove(self.filename)
+
+
+noaa = NoaaFTP(4, 9, 2002)
+noaa.download_data()
+noaa.decompress_file()

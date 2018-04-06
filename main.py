@@ -82,8 +82,3 @@ class NoaaFTP:
             with open(final_name[0], 'wb') as final_file:
                 # Saves the content to a new file.
                 final_file.write(file_content)
-
-
-noaa = NoaaFTP(4, 9, 2002)
-noaa.download_data()
-noaa.decompress_file()

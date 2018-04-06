@@ -71,10 +71,16 @@ class NoaaFTP:
 
 
     def decompress_file(self):
+        """
+        This function doesn't really decompress the file, it saves the data
+        inside a different file with the same name.
+        """
         with gzip.open(self.filename, 'rb') as _file:
             file_content = _file.read()
+            # Removes .gz from filename.
             final_name = self.filename.split('.gz')
             with open(final_name[0], 'wb') as final_file:
+                # Saves the content to a new file.
                 final_file.write(file_content)
 
 

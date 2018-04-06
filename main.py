@@ -1,30 +1,83 @@
+from __future__ import print_function
+
+import os
 import gzip
 from ftplib import FTP
 
 class NoaaFTP:
 
-    def __init__(self, day, month, year):
-        self.day = day
-        self.month = month
-        self.year = year
+    def __init__(self, day, month, year, station='Sagamore Hill'):
+        self.day = str(day)
+        if len(self.day) == 1:
+            self.day = '0' + self.day
+        self.month = str(month)
+        if len(self.month) == 1:
+            self.month = '0' + self.month
+        self.year = str(year)
+        self.station = station
 
-    
+
+    def set_station_name(self):
+        return self.station.lower().replace(' ', '-')
+
+
+    def change_month(self):
+        months = [
+            "JAN", "FEV", "MAR", "APR", "MAY", "JUN",
+            "JUL", "AUG", "SEP", "OUT", "NOV", "DEC"
+        ]
+
+        # Returns the corresponding month to dowload the file.
+        index = int(self.month) - 1
+        return months[index]
+
+
+    def set_file_extension(self):
+        if self.station.lower() == "sagamore hill":
+            extension = ".K7O.gz"
+        elif self.station.lower() == "san vito":
+            extension = ".lis.gz"
+        elif self.station.lower() == "palehua":
+            extension = ".phf.gz"
+        elif self.station.lower() == "learmonth":
+            extension = ".apl.gz"
+
+        return extension
+
+
     def download_data(self):
         ftp = FTP('ftp.ngdc.noaa.gov')
-        ftp.login() 
-        
-        ftp.dir()
+        ftp.login()
+
+        station_name = self.set_station_name()
         ftp.cwd('STP/space-weather/solar-data/solar-features/solar-radio/rstn-1-second')
-        
-        ftp.cwd('sagamore-hill/2002/09')
-        
-        ftp.retrbinary('RETR 04SEP02.K7O.gz', open('04SEP02.K7O.gz', 'wb').write)
-        
+
+        # Sets the path for the file.
+        ftp.cwd(station_name + '/' + self.year + '/' + self.month)
+
+        filename = self.day + self.change_month() + self.year[2:]
+        file_extension = self.set_file_extension()
+        filename = filename + file_extension
+        download_name = 'RETR ' + filename + file_extension
+
+        # Absolute path for the file
+        local_file = os.path.dirname(os.path.abspath(__file__)) + '/' + filename
+        #ftp.retrbinary(download_name, open(local_file, 'wb').write)
+
         ftp.quit()
 
-    def decompress_file(self):
-        gzip.GzipFile(self.filename)
+        print("File downloaded.")
+        self.filename = filename
 
-        with gzip.open('04SEP02.K70.gz', 'rb') as _file:
+
+    def decompress_file(self):
+        with gzip.open(self.filename, 'rb') as _file:
             file_content = _file.read()
-            print file_content
+            final_name = self.filename.split('.gz')
+            with open(final_name[0], 'wb') as final_file:
+                final_file.write(file_content)
+
+
+noaa = NoaaFTP(4, 9, 2002)
+noaa.download_data()
+noaa.decompress_file()

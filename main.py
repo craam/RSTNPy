@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import os
 import gzip
+import urllib
 from ftplib import FTP
 
 class NoaaFTP:
@@ -22,10 +23,16 @@ class NoaaFTP:
 
 
     def change_month(self):
-        months = [
-            "JAN", "FEV", "MAR", "APR", "MAY", "JUN",
-            "JUL", "AUG", "SEP", "OUT", "NOV", "DEC"
-        ]
+        if int(self.year) < 2013:
+            months = [
+                "JAN", "FEV", "MAR", "APR", "MAY", "JUN",
+                "JUL", "AUG", "SEP", "OUT", "NOV", "DEC"
+            ]
+        else:
+            months = [
+                "jan", "fev", "mar", "apr", "may", "jun",
+                "jul", "aug", "sep", "out", "nov", "dec"
+            ]
 
         # Returns the corresponding month to dowload the file.
         index = int(self.month) - 1
@@ -33,14 +40,26 @@ class NoaaFTP:
 
 
     def set_file_extension(self):
-        if self.station.lower() == "sagamore hill":
-            extension = ".K7O.gz"
-        elif self.station.lower() == "san vito":
-            extension = ".lis.gz"
-        elif self.station.lower() == "palehua":
-            extension = ".phf.gz"
-        elif self.station.lower() == "learmonth":
-            extension = ".apl.gz"
+
+        # After 2013 the extensions are in lower case.
+        if int(self.year) < 2013:
+            if self.station.lower() == "sagamore hill":
+                extension = ".K7O.gz"
+            elif self.station.lower() == "san vito":
+                extension = ".LIS.gz"
+            elif self.station.lower() == "palehua":
+                extension = ".PHF.gz"
+            elif self.station.lower() == "learmonth":
+                extension = ".APL.gz"
+        else:
+            if self.station.lower() == "sagamore hill":
+                extension = ".k7o.gz"
+            elif self.station.lower() == "san vito":
+                extension = ".lis.gz"
+            elif self.station.lower() == "palehua":
+                extension = ".phf.gz"
+            elif self.station.lower() == "learmonth":
+                extension = ".apl.gz"
 
         return extension
 
@@ -48,6 +67,7 @@ class NoaaFTP:
     def download_data(self):
         try:
             ftp = FTP('ftp.ngdc.noaa.gov')
+            print(ftp.getwelcome())
             ftp.login()
         except:
             print("Connection not stablished.")
@@ -63,6 +83,13 @@ class NoaaFTP:
         file_extension = self.set_file_extension()
         filename = filename + file_extension
         download_name = 'RETR ' + filename + file_extension
+
+        url = 'ftp://ftp.ngdc.noaa.gov/STP/space-weather/solar-data/solar-features/solar-radio/rstn-1-second/'
+        url += station_name + '/' + self.year + '/' + self.month + '/'
+        url += filename
+
+        g = gzip.open(urllib.urlretrieve(url)[0])
+        print(g)
 
         # Absolute path for the file
         local_file = os.path.dirname(os.path.abspath(__file__)) + '/' + filename

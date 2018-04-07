@@ -7,3 +7,9 @@
 *.APL
 *.phf
 *.PHF
+
+*.egg-info
+*.egg
+
+*.swp
+*.pyc

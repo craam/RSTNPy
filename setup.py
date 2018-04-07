@@ -12,6 +12,7 @@ setup(
     license="GPLv2",
     packages=['noaa-ftp'],
     install_requires=['wget'],
+    include_data_package=True,
     zip_safe=False
 )
 

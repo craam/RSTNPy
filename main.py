@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import os
 import gzip
-import urllib
+import wget
 from ftplib import FTP
 
 class NoaaFTP:
@@ -74,30 +74,18 @@ class NoaaFTP:
             return False
 
         station_name = self.set_station_name()
-        ftp.cwd('STP/space-weather/solar-data/solar-features/solar-radio/rstn-1-second')
-
-        # Sets the path for the file.
-        ftp.cwd(station_name + '/' + self.year + '/' + self.month)
 
         filename = self.day + self.change_month() + self.year[2:]
         file_extension = self.set_file_extension()
         filename = filename + file_extension
-        download_name = 'RETR ' + filename + file_extension
 
-        url = 'ftp://ftp.ngdc.noaa.gov/STP/space-weather/solar-data/solar-features/solar-radio/rstn-1-second/'
+        url = 'ftp://ftp.ngdc.noaa.gov/STP/space-weather/solar-data/'
+        url += 'solar-features/solar-radio/rstn-1-second/'
         url += station_name + '/' + self.year + '/' + self.month + '/'
         url += filename
 
-        g = gzip.open(urllib.urlretrieve(url)[0])
-        print(g)
+        filename = wget.download(url)
 
-        # Absolute path for the file
-        local_file = os.path.dirname(os.path.abspath(__file__)) + '/' + filename
-        ftp.retrbinary(download_name, open(local_file, 'wb').write)
-
-        ftp.quit()
-
-        print("File downloaded.")
         self.filename = filename
 
 
@@ -109,8 +97,7 @@ class NoaaFTP:
 
         # Checks if the filename varialabe exists.
         try:
-            if self.filename:
-                print("")
+            print(self.filename)
         except NameError:
             print("You need to download the file first.")
             return False

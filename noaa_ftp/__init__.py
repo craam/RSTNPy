@@ -9,11 +9,18 @@ class NoaaFTP:
 
     """Download solar data from noaa's FTP.
 
-    keywords arguments:
+    Args:
         day (str or int):  event's day.
         month (str or int):  event's month.
         year (str or int):  events' year.
         station (str, optional):  Station (default Sagamore Hill).
+
+    Attributes:
+        day (str or int):  event's day.
+        month (str or int):  event's month.
+        year (str or int):  events' year.
+        station (str, optional):  Station (default Sagamore Hill).
+        filename (str): Name of the downloaded file.
     """
 
     def __init__(self, day, month, year, station='Sagamore Hill'):

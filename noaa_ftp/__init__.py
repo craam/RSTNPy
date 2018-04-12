@@ -21,6 +21,7 @@ class NoaaFTP:
         year (str or int):  events' year.
         station (str, optional):  Station (default Sagamore Hill).
         filename (str): Name of the downloaded file.
+        ABS_PATH (str): Absolute path fot the file.
     """
 
     def __init__(self, day, month, year, station='Sagamore Hill'):
@@ -32,6 +33,7 @@ class NoaaFTP:
             self.month = '0' + self.month
         self.year = str(year)
         self.station = station
+        self.ABS_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
 
 
     def __set_station_name(self):
@@ -126,4 +128,10 @@ class NoaaFTP:
                 # Saves the content to a new file.
                 final_file.write(file_content)
 
+        os.rename(self.ABS_PATH + file_name[0], self.ABS_PATH + "data/" + file_name[0])
         os.remove(self.filename)
+
+
+noaa = NoaaFTP(4, 9, 2002)
+noaa.download_data()
+noaa.decompress_file()

@@ -40,44 +40,51 @@ class NoaaFTP:
         return self.station.lower().replace(' ', '-')
 
 
-    def __change_month(self):
-        if int(self.year) < 2013:
-            months = [
-                "JAN", "FEV", "MAR", "APR", "MAY", "JUN",
-                "JUL", "AUG", "SEP", "OUT", "NOV", "DEC"
-            ]
-        else:
-            months = [
-                "jan", "fev", "mar", "apr", "may", "jun",
-                "jul", "aug", "sep", "out", "nov", "dec"
-            ]
+    def __change_month_upper(self):
+        months = [
+            "JAN", "FEV", "MAR", "APR", "MAY", "JUN",
+            "JUL", "AUG", "SEP", "OUT", "NOV", "DEC"
+        ]
 
         # Returns the corresponding month to dowload the file.
         index = int(self.month) - 1
         return months[index]
 
 
-    def __set_file_extension(self):
+    def __change_month_lower(self):
+        months = [
+            "jan", "fev", "mar", "apr", "may", "jun",
+            "jul", "aug", "sep", "out", "nov", "dec"
+        ]
 
-        # After 2013 the extensions are in lower case.
-        if int(self.year) < 2013:
-            if self.station.lower() == "sagamore hill":
-                extension = ".K7O.gz"
-            elif self.station.lower() == "san vito":
-                extension = ".LIS.gz"
-            elif self.station.lower() == "palehua":
-                extension = ".PHF.gz"
-            elif self.station.lower() == "learmonth":
-                extension = ".APL.gz"
-        else:
-            if self.station.lower() == "sagamore hill":
-                extension = ".k7o.gz"
-            elif self.station.lower() == "san vito":
-                extension = ".lis.gz"
-            elif self.station.lower() == "palehua":
-                extension = ".phf.gz"
-            elif self.station.lower() == "learmonth":
-                extension = ".apl.gz"
+        # Returns the corresponding month to dowload the file.
+        index = int(self.month) - 1
+        return months[index]
+
+
+    def __set_file_extension_upper(self):
+
+        if self.station.lower() == "sagamore hill":
+            extension = ".K7O.gz"
+        elif self.station.lower() == "san vito":
+            extension = ".LIS.gz"
+        elif self.station.lower() == "palehua":
+            extension = ".PHF.gz"
+        elif self.station.lower() == "learmonth":
+            extension = ".APL.gz"
+
+        return extension
+
+    def __set_file_extension_lower(self):
+
+        if self.station.lower() == "sagamore hill":
+            extension = ".k7o.gz"
+        elif self.station.lower() == "san vito":
+            extension = ".lis.gz"
+        elif self.station.lower() == "palehua":
+            extension = ".phf.gz"
+        elif self.station.lower() == "learmonth":
+            extension = ".apl.gz"
 
         return extension
 
@@ -93,18 +100,26 @@ class NoaaFTP:
 
         station_name = self.__set_station_name()
 
-        filename = self.day + self.__change_month() + self.year[2:]
-        file_extension = self.__set_file_extension()
-        filename = filename + file_extension
+        filename = self.day + self.__change_month_upper() + self.year[2:]
+        file_extension = self.__set_file_extension_upper()
 
         url = 'ftp://ftp.ngdc.noaa.gov/STP/space-weather/solar-data/'
         url += 'solar-features/solar-radio/rstn-1-second/'
         url += station_name + '/' + self.year + '/' + self.month + '/'
-        url += filename
 
-        filename = wget.download(url)
-
-        self.filename = filename
+        # Tries to download with the file extension in lower case.
+        # Then tries to download with the file extension in lower case.
+        try:
+            url += filename + file_extension
+            filename = wget.download(url)
+        except:
+            url = url.split(filename)[0]
+            filename = self.day + self.__change_month_lower() + self.year[2:]
+            file_extension = self.__set_file_extension_lower()
+            url += filename + file_extension
+            wget.download(url)
+        finally:
+            self.filename = filename + file_extension
 
 
     def decompress_file(self):
@@ -128,10 +143,10 @@ class NoaaFTP:
                 # Saves the content to a new file.
                 final_file.write(file_content)
 
-        os.rename(self.ABS_PATH + file_name[0], self.ABS_PATH + "data/" + file_name[0])
+        os.rename(self.ABS_PATH + final_name[0],self.ABS_PATH + "data/" + final_name[0])
         os.remove(self.filename)
 
 
-noaa = NoaaFTP(4, 9, 2002)
+noaa = NoaaFTP(9, 4, 2002)
 noaa.download_data()
 noaa.decompress_file()

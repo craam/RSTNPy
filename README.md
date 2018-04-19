@@ -1,4 +1,4 @@
-# noaa-ftp
+# noaaftp
 Download solar data from noaa's ftp.
 
 ## How to use it

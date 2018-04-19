@@ -4,6 +4,8 @@ Download solar data from noaa's ftp.
 ## How to use it
 
 ```python
+from noaaftp import NoaaFTP
+
 day = 9
 month = 4
 year = 2002

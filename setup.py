@@ -1,15 +1,13 @@
 from setuptools import setup
 
-
 setup(
-    name="noaa-ftp",
+    name="noaaftp",
     version="0.1",
-    url="https://github.com/3ldr0n/noaa-ftp",
     author="Edison Neto and Douglas Silva",
     author_email="ednetoali@gmail.com",
-    license="GPLv2",
-    packages=['noaa-ftp'],
+    packages=['noaaftp'],
     include_package_data=True,
-    install_requires=['wget']
+    install_requires=[
+        'wget'
+    ],
 )
-

@@ -24,7 +24,7 @@ class NoaaFTP:
         path (str): Absolute path for the file.
     """
 
-    def __init__(self, day, month, year, station='Sagamore Hill', path):
+    def __init__(self, day, month, year, path, station='Sagamore Hill'):
         self._day = str(day)
         if len(self._day) == 1:
             self._day = '0' + self._day
@@ -32,8 +32,8 @@ class NoaaFTP:
         if len(self._month) == 1:
             self._month = '0' + self._month
         self._year = str(year)
-        self._station = station
         self._path = path
+        self._station = station
 
 
     def __set_station_name(self):
@@ -131,7 +131,7 @@ class NoaaFTP:
         # Checks if the filename varialabe exists.
         try:
             print(self._filename)
-        except NameError:
+        except:
             print("You need to download the file first.")
             return False
 
@@ -143,15 +143,11 @@ class NoaaFTP:
                 # Saves the content to a new file.
                 final_file.write(file_content)
 
-        if os.path.exists(self._path + "data/"):
+        if os.path.exists(self._path):
             print("Path exists")
         else:
-            os.mkdir(self._path + "data/")
+            os.mkdir(self._path)
 
-        os.rename(self._path + final_name[0],self._path + "data/" + final_name[0])
+        os.rename(self._path + final_name[0], self._path +  final_name[0])
         os.remove(self.filename)
-
-
-noaa = NoaaFTP(9, 4, 2002, path=os.path.dirname(os.path.abspath(__file__)) + "/")
-noaa.download_data()
-noaa.decompress_file()
+        return final_name[0]

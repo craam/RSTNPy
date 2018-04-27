@@ -32,7 +32,7 @@ class NoaaFTP:
         if len(self._month) == 1:
             self._month = '0' + self._month
         self._year = str(year)
-        self._path = path
+        self._path = str(path)
         self._station = station
 
 
@@ -113,13 +113,16 @@ class NoaaFTP:
             url += filename + file_extension
             filename = wget.download(url)
         except:
-            url = url.split(filename)[0]
-            filename = self._day + self.__change_month_lower() + self._year[2:]
-            file_extension = self.__set_file_extension_lower()
-            url += filename + file_extension
-            wget.download(url)
+            try:
+                url = url.split(filename)[0]
+                filename = self._day + self.__change_month_lower() + self._year[2:]
+                file_extension = self.__set_file_extension_lower()
+                url += filename + file_extension
+                filename = wget.download(url)
+            except:
+                filename = "no_data"
         finally:
-            self._filename = filename + file_extension
+            self._filename = filename
 
 
     def decompress_file(self):
@@ -131,6 +134,9 @@ class NoaaFTP:
         # Checks if the filename varialabe exists.
         try:
             print(self._filename)
+            if self._filename == "no_data":
+                print("No file")
+                return False
         except:
             print("You need to download the file first.")
             return False
@@ -148,6 +154,6 @@ class NoaaFTP:
         else:
             os.mkdir(self._path)
 
-        os.rename(self._path + final_name[0], self._path +  final_name[0])
-        os.remove(self.filename)
+        os.rename(final_name[0], self._path +  final_name[0])
+        os.remove(self._filename)
         return final_name[0]

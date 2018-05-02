@@ -3,10 +3,10 @@
 ### To install just execute the setup.py file.
 
 ```console
-python setup.py install
+cd noaa-ftp ; python setup.py install
 ```
 or with pip
 
 ```console
-pip install --editable .
+cd noaa-ftp ; pip install --editable .
 ```

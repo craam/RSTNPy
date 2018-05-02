@@ -35,10 +35,8 @@ class NoaaFTP:
         self._path = str(path)
         self._station = station
 
-
     def __set_station_name(self):
         return self._station.lower().replace(' ', '-')
-
 
     def __change_month_upper(self):
         months = [
@@ -50,7 +48,6 @@ class NoaaFTP:
         index = int(self._month) - 1
         return months[index]
 
-
     def __change_month_lower(self):
         months = [
             "jan", "fev", "mar", "apr", "may", "jun",
@@ -60,7 +57,6 @@ class NoaaFTP:
         # Returns the corresponding month to dowload the file.
         index = int(self._month) - 1
         return months[index]
-
 
     def __set_file_extension_upper(self):
 
@@ -87,7 +83,6 @@ class NoaaFTP:
             extension = ".apl.gz"
 
         return extension
-
 
     def download_data(self):
         try:
@@ -123,7 +118,6 @@ class NoaaFTP:
                 filename = "no_data"
         finally:
             self._filename = filename
-
 
     def decompress_file(self):
         """

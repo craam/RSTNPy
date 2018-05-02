@@ -1,6 +1,6 @@
 # Insatallation
 
-###To install just execute the setup.py file.
+### To install just execute the setup.py file.
 
 ```console
 python setup.py install

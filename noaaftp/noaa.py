@@ -3,6 +3,7 @@ from __future__ import print_function
 import os
 import gzip
 import wget
+import requests
 from ftplib import FTP
 
 class NoaaFTP:
@@ -119,6 +120,36 @@ class NoaaFTP:
         finally:
             self._filename = filename
 
+    def download_data_http(self):
+        station_name = self.__set_station_name()
+
+        filename = self._day + self.__change_month_upper() + self._year[2:]
+        file_extension = self.__set_file_extension_upper()
+
+        url = "https://ftp.ngdc.noaa.gov/STP/space-weather/solar-data/"
+        url += "solar-features/solar-radio/rstn-1-second/"
+        url += station_name + "/" + self._year + "/" + self._month + "/"
+
+
+        # Tries to download with the file extension in lower case.
+        # Then tries to download with the file extension in lower case.
+        try:
+            url += filename + file_extension
+            r = requests.get(url)
+        except:
+            try:
+                url = url.split(filename)[0]
+                filename = self._day + self.__change_month_lower() + self._year[2:]
+                file_extension = self.__set_file_extension_lower()
+                url += filename + file_extension
+                r = requests.get(url)
+            except:
+                filename = "no_data"
+        finally:
+            self._filename = filename
+
+
+
     def decompress_file(self):
         """
         This function doesn't really decompress the file, it saves the data
@@ -151,3 +182,6 @@ class NoaaFTP:
         os.rename(final_name[0], self._path +  final_name[0])
         os.remove(self._filename)
         return final_name[0]
+
+noaa = NoaaFTP(9, 4, 2002, "dados/")
+noaa.download_data_http()

@@ -19,6 +19,6 @@ noaa.download_data()
 noaa.decompress_file()
 
 # Via FTP.
-noaa.download_data()
+noaa.download_data_ftp()
 noaa.decompress_file()
 ```

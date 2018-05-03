@@ -93,6 +93,41 @@ class GetRSTN:
 
         return extension
 
+    def file_exists(self):
+        arquivos = os.listdir(self._path)
+
+        for arquivo in arquivos:
+            if (arquivo == self.__generate_filename(True) or
+                    arquivo == self.__generate_filename(False)):
+                return True
+
+        return False
+
+    def __generate_filename(self, upper):
+        if upper:
+            filename = self._day + self.__change_month_upper() + self._year[2:]
+        else:
+            filename = self._day + self.__change_month_lower() + self._year[2:]
+
+        return filename
+
+    def __generate_url(self, upper):
+        station_name = self.__set_station_name()
+
+        if upper:
+            filename = self.__generate_filename(True)
+            file_extension = self.__set_file_extension_upper()
+        else:
+            filename = self.__generate_filename(False)
+            file_extension = self.__set_file_extension_lower()
+
+        url = 'ftp://ftp.ngdc.noaa.gov/STP/space-weather/solar-data/'
+        url += 'solar-features/solar-radio/rstn-1-second/'
+        url += station_name + '/' + self._year + '/' + self._month + '/'
+        url += filename + file_extension
+
+        return url
+
     def download_data_ftp(self):
         try:
             ftp = FTP('ftp.ngdc.noaa.gov')
@@ -102,27 +137,18 @@ class GetRSTN:
             print("Connection not established.")
             return False
 
-        station_name = self.__set_station_name()
+        if self.file_exists():
+            print("File already downloaded.")
+            return False
 
-        filename = self._day + self.__change_month_upper() + self._year[2:]
-        file_extension = self.__set_file_extension_upper()
-
-        url = 'ftp://ftp.ngdc.noaa.gov/STP/space-weather/solar-data/'
-        url += 'solar-features/solar-radio/rstn-1-second/'
-        url += station_name + '/' + self._year + '/' + self._month + '/'
-
-        # Tries to download with the file extension in lower case.
+        # Tries to download with the file extension in upper case.
         # Then tries to download with the file extension in lower case.
         try:
-            url += filename + file_extension
+            url = self.__generate_url(True)
             filename = wget.download(url)
         except HTTPError:
             try:
-                url = url.split(filename)[0]
-                filename = self._day + self.__change_month_lower() + \
-                    self._year[2:]
-                file_extension = self.__set_file_extension_lower()
-                url += filename + file_extension
+                url = self.__generate_url(False)
                 filename = wget.download(url)
             except HTTPError:
                 filename = "no_data"
@@ -130,31 +156,18 @@ class GetRSTN:
             self._filename = filename
 
     def download_data(self):
-        station_name = self.__set_station_name()
+        if self.file_exists():
+            print("File already downloaded.")
+            return False
 
-        filename = self._day + self.__change_month_upper() + self._year[2:]
-        file_extension = self.__set_file_extension_upper()
-
-        url = "https://ngdc.noaa.gov/stp/space-weather/solar-data/"
-        url += "solar-features/solar-radio/rstn-1-second/"
-        url += station_name + "/" + self._year + "/" + self._month + "/"
-
-        # Tries to download with the file extension in lower case.
+        # Tries to download with the file extension in upper case.
         # Then tries to download with the file extension in lower case.
         try:
-            url += filename + file_extension
-            print("Trying to download {}".format(
-                filename + file_extension))
+            url = self.__generate_url(True)
             filename = wget.download(url)
         except HTTPError:
             try:
-                url = url.split(filename)[0]
-                filename = self._day + self.__change_month_lower() + \
-                    self._year[2:]
-                file_extension = self.__set_file_extension_lower()
-                url += filename + file_extension
-                print("Trying to download {}".format(
-                    filename + file_extension))
+                url = self.__generate_url(False)
                 filename = wget.download(url)
             except HTTPError:
                 filename = "no_data"
@@ -175,6 +188,10 @@ class GetRSTN:
                 return False
         except AttributeError:
             print("You need to download the file first.")
+            return False
+
+        if not self.file_exists():
+            print("File doesn't exist")
             return False
 
         with gzip.open(self._filename, 'rb') as _file:

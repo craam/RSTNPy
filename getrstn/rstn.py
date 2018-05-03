@@ -51,7 +51,7 @@ class GetRSTN:
             "JUL", "AUG", "SEP", "OUT", "NOV", "DEC"
         ]
 
-        # Returns the corresponding month to dowload the file.
+        # Returns the corresponding month to download the file.
         index = int(self._month) - 1
         return months[index]
 
@@ -61,7 +61,7 @@ class GetRSTN:
             "jul", "aug", "sep", "out", "nov", "dec"
         ]
 
-        # Returns the corresponding month to dowload the file.
+        # Returns the corresponding month to download the file.
         index = int(self._month) - 1
         return months[index]
 
@@ -97,7 +97,7 @@ class GetRSTN:
             print(ftp.getwelcome())
             ftp.login()
         except HTTPError:
-            print("Connection not stablished.")
+            print("Connection not established.")
             return False
 
         station_name = self.__set_station_name()
@@ -167,7 +167,7 @@ class GetRSTN:
         inside a different file with the same name.
         """
 
-        # Checks if the filename varialabe exists.
+        # Checks if the filename variable exists.
         try:
             print(self._filename)
             if self._filename == "no_data":

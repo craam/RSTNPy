@@ -4,8 +4,12 @@ import os
 import gzip
 import wget
 
-from urllib.error import HTTPError
 from ftplib import FTP
+
+try:
+    from urllib.error import HTTPError
+except ImportError:
+    from urllib2 import HTTPError
 
 
 class GetRSTN:

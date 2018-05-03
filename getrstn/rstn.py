@@ -50,7 +50,7 @@ class GetRSTN:
     def __change_month_upper(self):
         months = [
             "JAN", "FEV", "MAR", "APR", "MAY", "JUN",
-            "JUL", "AUG", "SEP", "OUT", "NOV", "DEC"
+            "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
         ]
 
         # Returns the corresponding month to download the file.
@@ -60,7 +60,7 @@ class GetRSTN:
     def __change_month_lower(self):
         months = [
             "jan", "fev", "mar", "apr", "may", "jun",
-            "jul", "aug", "sep", "out", "nov", "dec"
+            "jul", "aug", "sep", "oct", "nov", "dec"
         ]
 
         # Returns the corresponding month to download the file.
@@ -155,9 +155,7 @@ class GetRSTN:
                 url += filename + file_extension
                 print("Trying to download {}".format(
                     filename + file_extension))
-
                 filename = wget.download(url)
-                print(filename)
             except HTTPError:
                 filename = "no_data"
         finally:

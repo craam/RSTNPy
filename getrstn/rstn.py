@@ -87,12 +87,12 @@ class GetRSTN:
 
         return extension
 
-    def download_data(self):
+    def download_data_ftp(self):
         try:
             ftp = FTP('ftp.ngdc.noaa.gov')
             print(ftp.getwelcome())
             ftp.login()
-        except:
+        except HTTPError:
             print("Connection not stablished.")
             return False
 
@@ -110,7 +110,7 @@ class GetRSTN:
         try:
             url += filename + file_extension
             filename = wget.download(url)
-        except:
+        except HTTPError:
             try:
                 url = url.split(filename)[0]
                 filename = self._day + self.__change_month_lower() + \
@@ -118,12 +118,12 @@ class GetRSTN:
                 file_extension = self.__set_file_extension_lower()
                 url += filename + file_extension
                 filename = wget.download(url)
-            except:
+            except HTTPError:
                 filename = "no_data"
         finally:
             self._filename = filename
 
-    def download_data_http(self):
+    def download_data(self):
         station_name = self.__set_station_name()
 
         filename = self._day + self.__change_month_upper() + self._year[2:]

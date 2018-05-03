@@ -3,10 +3,12 @@ from __future__ import print_function
 import os
 import gzip
 import wget
-import requests
+
+from urllib.error import HTTPError
 from ftplib import FTP
 
-class NoaaFTP:
+
+class GetRSTN:
 
     """Download solar data from noaa's FTP.
 
@@ -111,7 +113,8 @@ class NoaaFTP:
         except:
             try:
                 url = url.split(filename)[0]
-                filename = self._day + self.__change_month_lower() + self._year[2:]
+                filename = self._day + self.__change_month_lower() + \
+                    self._year[2:]
                 file_extension = self.__set_file_extension_lower()
                 url += filename + file_extension
                 filename = wget.download(url)
@@ -126,29 +129,33 @@ class NoaaFTP:
         filename = self._day + self.__change_month_upper() + self._year[2:]
         file_extension = self.__set_file_extension_upper()
 
-        url = "https://ftp.ngdc.noaa.gov/STP/space-weather/solar-data/"
+        url = "https://ngdc.noaa.gov/stp/space-weather/solar-data/"
         url += "solar-features/solar-radio/rstn-1-second/"
         url += station_name + "/" + self._year + "/" + self._month + "/"
-
 
         # Tries to download with the file extension in lower case.
         # Then tries to download with the file extension in lower case.
         try:
             url += filename + file_extension
-            r = requests.get(url)
-        except:
+            print("Trying to download {}".format(
+                filename + file_extension))
+            filename = wget.download(url)
+        except HTTPError:
             try:
                 url = url.split(filename)[0]
-                filename = self._day + self.__change_month_lower() + self._year[2:]
+                filename = self._day + self.__change_month_lower() + \
+                    self._year[2:]
                 file_extension = self.__set_file_extension_lower()
                 url += filename + file_extension
-                r = requests.get(url)
-            except:
+                print("Trying to download {}".format(
+                    filename + file_extension))
+
+                filename = wget.download(url)
+                print(filename)
+            except HTTPError:
                 filename = "no_data"
         finally:
             self._filename = filename
-
-
 
     def decompress_file(self):
         """
@@ -162,7 +169,7 @@ class NoaaFTP:
             if self._filename == "no_data":
                 print("No file")
                 return False
-        except:
+        except AttributeError:
             print("You need to download the file first.")
             return False
 
@@ -179,9 +186,6 @@ class NoaaFTP:
         else:
             os.mkdir(self._path)
 
-        os.rename(final_name[0], self._path +  final_name[0])
+        os.rename(final_name[0], self._path + final_name[0])
         os.remove(self._filename)
         return final_name[0]
-
-noaa = NoaaFTP(9, 4, 2002, "dados/")
-noaa.download_data_http()

@@ -1,12 +1,12 @@
-# Insatallation
+# Installation
 
 ### To install just execute the setup.py file.
 
 ```console
-cd noaa-ftp ; python setup.py install
+cd getrstn ; python setup.py install
 ```
 or with pip
 
 ```console
-cd noaa-ftp ; pip install --editable .
+cd getrstn ; pip install --editable .
 ```

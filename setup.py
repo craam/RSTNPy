@@ -1,11 +1,11 @@
 from setuptools import setup
 
 setup(
-    name="noaaftp",
-    version="0.1",
+    name="getrstn",
+    version="0.2",
     author="Edison Neto and Douglas Silva",
     author_email="ednetoali@gmail.com",
-    packages=['noaaftp'],
+    packages=['getrstn'],
     include_package_data=True,
     install_requires=[
         'wget'

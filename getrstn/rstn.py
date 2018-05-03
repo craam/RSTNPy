@@ -23,9 +23,9 @@ class GetRSTN:
         station (str, optional):  Station (default Sagamore Hill).
 
     Attributes:
-        day (str or int):  event's day.
-        month (str or int):  event's month.
-        year (str or int):  events' year.
+        day (str):  event's day.
+        month (str):  event's month.
+        year (str):  events' year.
         station (str, optional):  Station (default Sagamore Hill).
         filename (str): Name of the downloaded file.
         path (str): Absolute path for the file.

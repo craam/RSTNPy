@@ -40,6 +40,8 @@ class GetRSTN:
             self._month = '0' + self._month
         self._year = str(year)
         self._path = str(path)
+        if self._path[-1] != "/":
+            self._path += "/"
         self._station = station
 
     def __set_station_name(self):

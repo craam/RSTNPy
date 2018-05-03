@@ -39,9 +39,14 @@ class GetRSTN:
         if len(self._month) == 1:
             self._month = '0' + self._month
         self._year = str(year)
+
         self._path = str(path)
         if self._path[-1] != "/":
             self._path += "/"
+        if os.path.exists(self._path):
+            print("Path exists")
+        else:
+            os.mkdir(self._path)
         self._station = station
 
     def __set_station_name(self):
@@ -67,43 +72,53 @@ class GetRSTN:
         index = int(self._month) - 1
         return months[index]
 
-    def __set_file_extension_upper(self):
+    def __set_file_extension_upper(self, file_gzip=True):
 
         if self._station.lower() == "sagamore hill":
-            extension = ".K7O.gz"
+            extension = ".K7O"
         elif self._station.lower() == "san vito":
-            extension = ".LIS.gz"
+            extension = ".LIS"
         elif self._station.lower() == "palehua":
-            extension = ".PHF.gz"
+            extension = ".PHF"
         elif self._station.lower() == "learmonth":
-            extension = ".APL.gz"
+            extension = ".APL"
+
+        if file_gzip:
+            return extension + ".gz"
 
         return extension
 
-    def __set_file_extension_lower(self):
+    def __set_file_extension_lower(self, file_gzip=True):
 
         if self._station.lower() == "sagamore hill":
-            extension = ".k7o.gz"
+            extension = ".k7o"
         elif self._station.lower() == "san vito":
-            extension = ".lis.gz"
+            extension = ".lis"
         elif self._station.lower() == "palehua":
-            extension = ".phf.gz"
+            extension = ".phf"
         elif self._station.lower() == "learmonth":
-            extension = ".apl.gz"
+            extension = ".apl"
+
+        if file_gzip:
+            return extension + ".gz"
 
         return extension
 
     def file_exists(self):
         arquivos = os.listdir(self._path)
+        filename_upper = self.__set_filename(
+            True) + self.__set_file_extension_lower(False)
+        filename_lower = self.__set_filename(
+            False) + self.__set_file_extension_lower(False)
 
         for arquivo in arquivos:
-            if (arquivo == self.__generate_filename(True) or
-                    arquivo == self.__generate_filename(False)):
+            if (arquivo == filename_upper or
+                    arquivo == filename_lower):
                 return True
 
         return False
 
-    def __generate_filename(self, upper):
+    def __set_filename(self, upper):
         if upper:
             filename = self._day + self.__change_month_upper() + self._year[2:]
         else:
@@ -111,17 +126,20 @@ class GetRSTN:
 
         return filename
 
-    def __generate_url(self, upper):
+    def __set_url(self, upper, http=True):
         station_name = self.__set_station_name()
 
         if upper:
-            filename = self.__generate_filename(True)
+            filename = self.__set_filename(True)
             file_extension = self.__set_file_extension_upper()
         else:
-            filename = self.__generate_filename(False)
+            filename = self.__set_filename(False)
             file_extension = self.__set_file_extension_lower()
 
-        url = 'ftp://ftp.ngdc.noaa.gov/STP/space-weather/solar-data/'
+        if http:
+            url = 'https://ngdc.noaa.gov/stp/space-weather/solar-data/'
+        else:
+            url = 'ftp://ftp.ngdc.noaa.gov/STP/space-weather/solar-data/'
         url += 'solar-features/solar-radio/rstn-1-second/'
         url += station_name + '/' + self._year + '/' + self._month + '/'
         url += filename + file_extension
@@ -144,11 +162,11 @@ class GetRSTN:
         # Tries to download with the file extension in upper case.
         # Then tries to download with the file extension in lower case.
         try:
-            url = self.__generate_url(True)
+            url = self.__set_url(True, False)
             filename = wget.download(url)
         except HTTPError:
             try:
-                url = self.__generate_url(False)
+                url = self.__set_url(False, False)
                 filename = wget.download(url)
             except HTTPError:
                 filename = "no_data"
@@ -163,11 +181,13 @@ class GetRSTN:
         # Tries to download with the file extension in upper case.
         # Then tries to download with the file extension in lower case.
         try:
-            url = self.__generate_url(True)
+            url = self.__set_url(True)
+            print("Downloading {}".format(url))
             filename = wget.download(url)
         except HTTPError:
             try:
-                url = self.__generate_url(False)
+                url = self.__set_url(False)
+                print("Downloading {}".format(url))
                 filename = wget.download(url)
             except HTTPError:
                 filename = "no_data"
@@ -190,10 +210,6 @@ class GetRSTN:
             print("You need to download the file first.")
             return False
 
-        if not self.file_exists():
-            print("File doesn't exist")
-            return False
-
         with gzip.open(self._filename, 'rb') as _file:
             file_content = _file.read()
             # Removes .gz from filename.
@@ -201,11 +217,6 @@ class GetRSTN:
             with open(final_name[0], 'wb') as final_file:
                 # Saves the content to a new file.
                 final_file.write(file_content)
-
-        if os.path.exists(self._path):
-            print("Path exists")
-        else:
-            os.mkdir(self._path)
 
         os.rename(final_name[0], self._path + final_name[0])
         os.remove(self._filename)

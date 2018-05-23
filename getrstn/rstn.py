@@ -235,6 +235,10 @@ class GetRSTN:
                 # Saves the content to a new file.
                 final_file.write(file_content)
 
-        os.rename(final_name[0], self._path + final_name[0])
+        try:
+            os.rename(final_name[0], self._path + final_name[0])
+        except FileExistsError:
+            pass
+
         os.remove(self._filename)
         return final_name[0]

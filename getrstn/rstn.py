@@ -66,6 +66,9 @@ class GetRSTN:
             os.mkdir(self._path)
         self._station = station
 
+    def get_filename(self):
+        return self._filename
+
     def __set_station_name(self):
         return self._station.lower().replace(' ', '-')
 
@@ -80,6 +83,12 @@ class GetRSTN:
         return months[index]
 
     def __change_month_lower(self):
+        """[summary]
+        
+        Returns:
+            [type] -- [description]
+        """
+
         months = [
             "jan", "fev", "mar", "apr", "may", "jun",
             "jul", "aug", "sep", "oct", "nov", "dec"
@@ -90,6 +99,15 @@ class GetRSTN:
         return months[index]
 
     def __set_file_extension_upper(self, file_gzip=True):
+        """[summary]
+        
+        Keyword Arguments:
+            file_gzip {bool} -- [description] (default: {True})
+        
+        Returns:
+            [type] -- [description]
+        """
+
 
         if self._station.lower() == "sagamore hill":
             extension = ".K7O"
@@ -106,6 +124,15 @@ class GetRSTN:
         return extension
 
     def __set_file_extension_lower(self, file_gzip=True):
+        """[summary]
+        
+        Keyword Arguments:
+            file_gzip {bool} -- [description] (default: {True})
+        
+        Returns:
+            [type] -- [description]
+        """
+
 
         if self._station.lower() == "sagamore hill":
             extension = ".k7o"
@@ -122,6 +149,12 @@ class GetRSTN:
         return extension
 
     def file_exists(self):
+        """[summary]
+        
+        Returns:
+            [type] -- [description]
+        """
+
         arquivos = os.listdir(self._path)
         filename_upper = self.__set_filename(
             True) + self.__set_file_extension_lower(False)
@@ -136,6 +169,15 @@ class GetRSTN:
         return False
 
     def __set_filename(self, upper):
+        """[summary]
+        
+        Arguments:
+            upper {[type]} -- [description]
+        
+        Returns:
+            [type] -- [description]
+        """
+
         if upper:
             filename = self._day + self.__change_month_upper() + self._year[2:]
         else:
@@ -144,6 +186,18 @@ class GetRSTN:
         return filename
 
     def __set_url(self, upper, http=True):
+        """[summary]
+        
+        Arguments:
+            upper {[type]} -- [description]
+        
+        Keyword Arguments:
+            http {bool} -- [description] (default: {True})
+        
+        Returns:
+            [type] -- [description]
+        """
+
         station_name = self.__set_station_name()
 
         if upper:
@@ -164,6 +218,12 @@ class GetRSTN:
         return url
 
     def download_data_ftp(self):
+        """[summary]
+        
+        Returns:
+            [type] -- [description]
+        """
+
         try:
             ftp = FTP('ftp.ngdc.noaa.gov')
             print(ftp.getwelcome())
@@ -191,9 +251,11 @@ class GetRSTN:
             self._filename = filename
 
     def download_data(self):
-        if self.file_exists():
-            print("File already downloaded.")
-            return False
+        """[summary]
+        
+        Returns:
+            {bool} -- [description]
+        """
 
         # Tries to download with the file extension in upper case.
         # Then tries to download with the file extension in lower case.
@@ -210,6 +272,7 @@ class GetRSTN:
                 filename = "no_data"
         finally:
             self._filename = filename
+            return True
 
     def decompress_file(self):
         """

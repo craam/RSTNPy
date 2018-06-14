@@ -86,7 +86,7 @@ class GetRSTN:
         """[summary]
         
         Returns:
-            [type] -- [description]
+            {str} -- [description]
         """
 
         months = [
@@ -105,7 +105,7 @@ class GetRSTN:
             file_gzip {bool} -- [description] (default: {True})
         
         Returns:
-            [type] -- [description]
+            {str} -- [description]
         """
 
 
@@ -130,7 +130,7 @@ class GetRSTN:
             file_gzip {bool} -- [description] (default: {True})
         
         Returns:
-            [type] -- [description]
+            {str} -- [description]
         """
 
 
@@ -195,7 +195,7 @@ class GetRSTN:
             http {bool} -- [description] (default: {True})
         
         Returns:
-            [type] -- [description]
+            {str} -- [description]
         """
 
         station_name = self.__set_station_name()

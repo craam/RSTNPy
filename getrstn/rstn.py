@@ -84,7 +84,7 @@ class GetRSTN:
 
     def __change_month_lower(self):
         """[summary]
-        
+
         Returns:
             {str} -- [description]
         """
@@ -100,10 +100,10 @@ class GetRSTN:
 
     def __set_file_extension_upper(self, file_gzip=True):
         """[summary]
-        
+
         Keyword Arguments:
             file_gzip {bool} -- [description] (default: {True})
-        
+
         Returns:
             {str} -- [description]
         """
@@ -125,10 +125,10 @@ class GetRSTN:
 
     def __set_file_extension_lower(self, file_gzip=True):
         """[summary]
-        
+
         Keyword Arguments:
             file_gzip {bool} -- [description] (default: {True})
-        
+
         Returns:
             {str} -- [description]
         """
@@ -150,7 +150,7 @@ class GetRSTN:
 
     def file_exists(self):
         """[summary]
-        
+
         Returns:
             [type] -- [description]
         """
@@ -170,10 +170,10 @@ class GetRSTN:
 
     def __set_filename(self, upper):
         """[summary]
-        
+
         Arguments:
             upper {[type]} -- [description]
-        
+
         Returns:
             [type] -- [description]
         """
@@ -187,13 +187,13 @@ class GetRSTN:
 
     def __set_url(self, upper, http=True):
         """[summary]
-        
+
         Arguments:
             upper {[type]} -- [description]
-        
+
         Keyword Arguments:
             http {bool} -- [description] (default: {True})
-        
+
         Returns:
             {str} -- [description]
         """
@@ -219,7 +219,7 @@ class GetRSTN:
 
     def download_data_ftp(self):
         """[summary]
-        
+
         Returns:
             [type] -- [description]
         """
@@ -252,7 +252,7 @@ class GetRSTN:
 
     def download_data(self):
         """[summary]
-        
+
         Returns:
             {bool} -- [description]
         """

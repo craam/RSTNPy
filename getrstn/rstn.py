@@ -108,7 +108,6 @@ class GetRSTN:
             {str} -- [description]
         """
 
-
         if self._station.lower() == "sagamore hill":
             extension = ".K7O"
         elif self._station.lower() == "san vito":
@@ -132,7 +131,6 @@ class GetRSTN:
         Returns:
             {str} -- [description]
         """
-
 
         if self._station.lower() == "sagamore hill":
             extension = ".k7o"
@@ -186,16 +184,16 @@ class GetRSTN:
         return filename
 
     def __set_url(self, upper, http=True):
-        """[summary]
+        """Creates the url of the file to be downloaded.
 
         Arguments:
-            upper {[type]} -- [description]
+            upper {bool} -- Used to try downloading both name in upper and lower case.
 
         Keyword Arguments:
-            http {bool} -- [description] (default: {True})
+            http {bool} -- Sets the url to be http or ftp. (default: {True})
 
         Returns:
-            {str} -- [description]
+            {str} -- The whole url.
         """
 
         station_name = self.__set_station_name()
@@ -211,6 +209,7 @@ class GetRSTN:
             url = 'https://ngdc.noaa.gov/stp/space-weather/solar-data/'
         else:
             url = 'ftp://ftp.ngdc.noaa.gov/STP/space-weather/solar-data/'
+
         url += 'solar-features/solar-radio/rstn-1-second/'
         url += station_name + '/' + self._year + '/' + self._month + '/'
         url += filename + file_extension
@@ -218,10 +217,10 @@ class GetRSTN:
         return url
 
     def download_data_ftp(self):
-        """[summary]
+        """Downloads the file via ftp.
 
         Returns:
-            [type] -- [description]
+            {bool} -- True when the file was downloaded, False if an error occours.
         """
 
         try:
@@ -249,12 +248,13 @@ class GetRSTN:
                 filename = "no_data"
         finally:
             self._filename = filename
+            return True
 
     def download_data(self):
-        """[summary]
+        """Downloads the file via https.
 
         Returns:
-            {bool} -- [description]
+            {bool} -- True when the file was downloaded.
         """
 
         # Tries to download with the file extension in upper case.
@@ -275,9 +275,11 @@ class GetRSTN:
             return True
 
     def decompress_file(self):
-        """
-        This function doesn't really decompress the file, it saves the data
+        """This function doesn't really decompress the file, it saves the data
         inside a different file with the same name.
+
+        Returns:
+            {str} -- File's final name.
         """
 
         # Checks if the filename variable exists.

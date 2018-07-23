@@ -34,18 +34,18 @@ class GetRSTN:
     """Download solar data from noaa's FTP.
 
     Args:
-        day (str or int):  event's day.
-        month (str or int):  event's month.
-        year (str or int):  events' year.
-        station (str, optional):  Station (default Sagamore Hill).
+        day {str or int} -- event's day.
+        month {str or int} -- event's month.
+        year {str or int} --  events' year.
+        station {str, optional} -- Station (default Sagamore Hill).
 
     Attributes:
-        day (str):  event's day.
-        month (str):  event's month.
-        year (str):  events' year.
-        station (str, optional):  Station (default Sagamore Hill).
-        filename (str): Name of the downloaded file.
-        path (str): Absolute path for the file.
+        day {str} -- event's day.
+        month {str} -- event's month.
+        year {str} -- events' year.
+        station {str, optional} --  Station (default Sagamore Hill).
+        filename {str} -- Name of the downloaded file.
+        path {str} -- Absolute path for the file.
     """
 
     def __init__(self, day, month, year, path, station='Sagamore Hill'):
@@ -70,9 +70,19 @@ class GetRSTN:
         return self._filename
 
     def __set_station_name(self):
+        """Sets the station name as it is in noaa's site.
+
+        Returns:
+            {str} -- The station as in the site.
+        """
         return self._station.lower().replace(' ', '-')
 
     def __change_month_upper(self):
+        """Sets the month for the filename in upper case.
+
+        Returns:
+            {str} -- The month.
+        """
         months = [
             "JAN", "FEV", "MAR", "APR", "MAY", "JUN",
             "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
@@ -83,10 +93,10 @@ class GetRSTN:
         return months[index]
 
     def __change_month_lower(self):
-        """[summary]
+        """Sets the month for the filename in lowercase.
 
         Returns:
-            {str} -- [description]
+            {str} -- The month.
         """
 
         months = [
@@ -99,13 +109,13 @@ class GetRSTN:
         return months[index]
 
     def __set_file_extension_upper(self, file_gzip=True):
-        """[summary]
+        """Creates the file extension upper case.
 
         Keyword Arguments:
-            file_gzip {bool} -- [description] (default: {True})
+            file_gzip {bool} -- Sets if the extension will have .gz. (default: {True})
 
         Returns:
-            {str} -- [description]
+            {str} -- The extension.
         """
 
         if self._station.lower() == "sagamore hill":
@@ -123,13 +133,13 @@ class GetRSTN:
         return extension
 
     def __set_file_extension_lower(self, file_gzip=True):
-        """[summary]
+        """Creates the file extension lower case.
 
         Keyword Arguments:
-            file_gzip {bool} -- [description] (default: {True})
+            file_gzip {bool} -- Sets if the extension will have .gz. (default: {True})
 
         Returns:
-            {str} -- [description]
+            {str} -- The extension.
         """
 
         if self._station.lower() == "sagamore hill":
@@ -147,10 +157,10 @@ class GetRSTN:
         return extension
 
     def file_exists(self):
-        """[summary]
+        """Sees if the file exists.
 
         Returns:
-            [type] -- [description]
+            {bool} -- True if the file exists.
         """
 
         arquivos = os.listdir(self._path)
@@ -167,13 +177,13 @@ class GetRSTN:
         return False
 
     def __set_filename(self, upper):
-        """[summary]
+        """Creates the file name.
 
         Arguments:
-            upper {[type]} -- [description]
+            upper {bool} -- Sets if the file is going to be upper case or lower case.
 
         Returns:
-            [type] -- [description]
+            {str} -- The file's name.
         """
 
         if upper:
@@ -275,8 +285,8 @@ class GetRSTN:
             return True
 
     def decompress_file(self):
-        """This function doesn't really decompress the file, it saves the data
-        inside a different file with the same name.
+        """It doesn't really decompress the file, it saves the data
+        inside in a different file with the same name.
 
         Returns:
             {str} -- File's final name.

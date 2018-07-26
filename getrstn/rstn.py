@@ -172,7 +172,7 @@ class GetRSTN:
         for arquivo in arquivos:
             if (arquivo == filename_upper or
                     arquivo == filename_lower):
-                return True
+                return arquivo
 
         return False
 
@@ -267,6 +267,10 @@ class GetRSTN:
             {bool} -- True when the file was downloaded.
         """
 
+        if self.file_exists() is not False:
+            print("File already downloaded")
+            return self.file_exists()
+
         # Tries to download with the file extension in upper case.
         # Then tries to download with the file extension in lower case.
         try:
@@ -291,6 +295,10 @@ class GetRSTN:
         Returns:
             {str} -- File's final name.
         """
+
+        if self.file_exists() is not False:
+            print("File already downloaded")
+            return self.file_exists()
 
         # Checks if the filename variable exists.
         try:

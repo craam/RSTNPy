@@ -29,7 +29,7 @@ except ImportError:
     from urllib2 import HTTPError
 
 
-class GetRSTN:
+class GetRSTN(object):
 
     """Download solar data from noaa's FTP.
 

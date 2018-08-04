@@ -1,6 +1,11 @@
 # Installation
 
-### To install just execute the setup.py file.
+Since version 0.2.2 You can install it with pip.
+```console
+pip install getrstn
+```
+
+To install just execute the setup.py file.
 
 ```console
 cd getrstn ; python setup.py install

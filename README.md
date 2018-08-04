@@ -1,6 +1,12 @@
 # GetRSTN
 Download RSTN's data from noaa's site. 
 
+## Installation
+
+```console
+pip install getrstn
+```
+
 ## How to use it
 
 ```python

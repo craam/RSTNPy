@@ -16,17 +16,15 @@ day = 9
 month = 4
 year = 2002
 path_to_files = "data/"
-station = "Sagamore Hill"
+station = "San vito"
 
-noaa = GetRSTN(day, month, year, path_to_files, station)
+rstn = GetRSTN(day, month, year, path_to_files, station)
 
-# Via HTTPS (recommended)
-noaa.download_data()
-noaa.decompress_file()
+# Downloads and decompress the file.
+rstn.decompress_file(download=True)
 
-# Via FTP.
-noaa.download_data_ftp()
-noaa.decompress_file()
+# Plots the data.
+ax = rstn.plot()
 ```
 
 ## Compatibility

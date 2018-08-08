@@ -20,8 +20,8 @@ from __future__ import print_function
 import datetime as dt
 import os
 import gzip
-import matplotlib.pyplot as plt
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import wget
@@ -296,7 +296,7 @@ class GetRSTN(object):
 
     def plot(self):
         """Plots the data from the day.
-        
+
         Returns:
             {matplotlib.Axes} -- Graphic's axes for manipulation.
         """

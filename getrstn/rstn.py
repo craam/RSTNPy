@@ -287,7 +287,7 @@ class GetRSTN(object):
 
         try:
             os.rename(final_name[0], self._path + final_name[0])
-        except FileExistsError:
+        except Exception:
             pass
 
         os.remove(self._filename)

@@ -17,11 +17,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from __future__ import print_function
 
+import datetime as dt
 import os
 import gzip
+import matplotlib.pyplot as plt
+
+import numpy as np
+import pandas as pd
 import wget
 
-from ftplib import FTP
+from matplotlib.dates import hours, num2date, DateFormatter
 
 try:
     from urllib.error import HTTPError
@@ -31,7 +36,7 @@ except ImportError:
 
 class GetRSTN(object):
 
-    """Download solar data from noaa's FTP.
+    """Download solar data from noaa's site.
 
     Args:
         day {str or int} -- event's day.
@@ -172,7 +177,8 @@ class GetRSTN(object):
         for arquivo in arquivos:
             if (arquivo == filename_upper or
                     arquivo == filename_lower):
-                return arquivo
+                self._filename = arquivo
+                return True
 
         return False
 
@@ -193,14 +199,11 @@ class GetRSTN(object):
 
         return filename
 
-    def __set_url(self, upper, http=True):
+    def __set_url(self, upper):
         """Creates the url of the file to be downloaded.
 
         Arguments:
             upper {bool} -- Used to try downloading both name in upper and lower case.
-
-        Keyword Arguments:
-            http {bool} -- Sets the url to be http or ftp. (default: {True})
 
         Returns:
             {str} -- The whole url.
@@ -215,50 +218,12 @@ class GetRSTN(object):
             filename = self.__set_filename(False)
             file_extension = self.__set_file_extension_lower()
 
-        if http:
-            url = 'https://ngdc.noaa.gov/stp/space-weather/solar-data/'
-        else:
-            url = 'ftp://ftp.ngdc.noaa.gov/STP/space-weather/solar-data/'
-
+        url = 'https://www.ngdc.noaa.gov/stp/space-weather/solar-data/'
         url += 'solar-features/solar-radio/rstn-1-second/'
         url += station_name + '/' + self._year + '/' + self._month + '/'
         url += filename + file_extension
 
         return url
-
-    def download_data_ftp(self):
-        """Downloads the file via ftp.
-
-        Returns:
-            {bool} -- True when the file was downloaded, False if an error occours.
-        """
-
-        try:
-            ftp = FTP('ftp.ngdc.noaa.gov')
-            print(ftp.getwelcome())
-            ftp.login()
-        except HTTPError:
-            print("Connection not established.")
-            return False
-
-        if self.file_exists():
-            print("File already downloaded.")
-            return False
-
-        # Tries to download with the file extension in upper case.
-        # Then tries to download with the file extension in lower case.
-        try:
-            url = self.__set_url(True, False)
-            filename = wget.download(url)
-        except HTTPError:
-            try:
-                url = self.__set_url(False, False)
-                filename = wget.download(url)
-            except HTTPError:
-                filename = "no_data"
-        finally:
-            self._filename = filename
-            return True
 
     def download_data(self):
         """Downloads the file via https.
@@ -267,20 +232,18 @@ class GetRSTN(object):
             {bool} -- True when the file was downloaded.
         """
 
-        if self.file_exists() is not False:
+        if self.file_exists():
             print("File already downloaded")
-            return self.file_exists()
+            return False
 
         # Tries to download with the file extension in upper case.
         # Then tries to download with the file extension in lower case.
         try:
             url = self.__set_url(True)
-            print("Downloading {}".format(url))
             filename = wget.download(url)
         except HTTPError:
             try:
                 url = self.__set_url(False)
-                print("Downloading {}".format(url))
                 filename = wget.download(url)
             except HTTPError:
                 filename = "no_data"
@@ -288,27 +251,31 @@ class GetRSTN(object):
             self._filename = filename
             return True
 
-    def decompress_file(self):
+    def decompress_file(self, download=False):
         """It doesn't really decompress the file, it saves the data
         inside in a different file with the same name.
+
+        Keyword Arguments:
+            download {bool} -- Downloads the file or not. (default: {False})
 
         Returns:
             {str} -- File's final name.
         """
 
-        if self.file_exists() is not False:
+        if download:
+            self.download_data()
+
+        if self.file_exists():
             print("File already downloaded")
-            return self.file_exists()
+            return self._filename
 
         # Checks if the filename variable exists.
         try:
-            print(self._filename)
             if self._filename == "no_data":
                 print("No file")
                 return False
         except AttributeError:
-            print("You need to download the file first.")
-            return False
+            raise AttributeError("You need to download the file first.")
 
         with gzip.open(self._filename, 'rb') as _file:
             file_content = _file.read()
@@ -324,4 +291,38 @@ class GetRSTN(object):
             pass
 
         os.remove(self._filename)
+        self._filename = final_name[0]
         return final_name[0]
+
+    def plot(self):
+        """Plots the data from the day.
+        
+        Returns:
+            {matplotlib.Axes} -- Graphic's axes for manipulation.
+        """
+
+        data = np.genfromtxt(self._path + self._filename,
+                delimiter=2*[4]+5*[2]+8*[7], missing_values=515)
+
+        day = data[:, 3]
+        time = data[:, 4] + data[:, 5]/60. + data[:, 6]/3600.
+        date = dt.date(int(self._year), int(self._month), int(self._day)).toordinal()
+        time = num2date(date + (day - int(self._day)) + hours(time))
+
+        rstn_data = {
+            "flux245": data[:, 7] - np.nanmean(data[:, 7]),
+            "flux410": data[:, 8] - np.nanmean(data[:, 8]),
+            "flux610": data[:, 9] - np.nanmean(data[:, 9]),
+            "flux1415": data[:, 10] - np.nanmean(data[:, 10]),
+            "flux2695": data[:, 11] - np.nanmean(data[:, 11]),
+            "flux4995": data[:, 12] - np.nanmean(data[:, 12]),
+            "flux8800": data[:, 13] - np.nanmean(data[:, 13]),
+            "flux15400": data[:, 14] - np.nanmean(data[:, 14])
+        }
+
+        rstn_data = pd.DataFrame(rstn_data, index=time)
+
+        ax = rstn_data.plot()
+        ax.xaxis.set_major_formatter(DateFormatter("%H:%M"))
+
+        return ax

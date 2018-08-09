@@ -1,3 +1,6 @@
+env
+.env
+
 *.gz
 *.K7O
 *.k7o

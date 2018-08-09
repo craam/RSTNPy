@@ -21,7 +21,6 @@ import datetime as dt
 import os
 import gzip
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import wget
@@ -54,6 +53,7 @@ class GetRSTN(object):
     """
 
     def __init__(self, day, month, year, path, station='Sagamore Hill'):
+        #pylint: disable-msg=R0913
         self._day = str(day)
         if len(self._day) == 1:
             self._day = '0' + self._day
@@ -70,9 +70,16 @@ class GetRSTN(object):
         else:
             os.mkdir(self._path)
         self._station = station
+        self._filename = None
         self.rstn_data = None
 
     def get_filename(self):
+        """Gets the filename.
+
+        Returns:
+            {str} -- Filename
+        """
+
         return self._filename
 
     def __set_station_name(self):
@@ -248,9 +255,9 @@ class GetRSTN(object):
                 filename = wget.download(url)
             except HTTPError:
                 filename = "no_data"
-        finally:
-            self._filename = filename
-            return True
+
+        self._filename = filename
+        return True
 
     def decompress_file(self, download=False):
         """It doesn't really decompress the file, it saves the data
@@ -297,12 +304,13 @@ class GetRSTN(object):
 
     def create_dataframe(self):
         """Creates the dataframe with the file's data.
-        
+
         Returns:
             {pd.DataFrame} -- The dataframe with the data.
         """
 
-        data = np.genfromtxt(self._path + self._filename, delimiter=2*[4]+5*[2]+8*[6], missing_values=515)
+        data = np.genfromtxt(self._path + self._filename,
+                             delimiter=2*[4]+5*[2]+8*[6], missing_values=515)
 
         day = data[:, 3]
         time = data[:, 4] + data[:, 5]/60. + data[:, 6]/3600.

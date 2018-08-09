@@ -1,6 +1,8 @@
 env
 .env
 
+.vscode
+
 *.gz
 *.K7O
 *.k7o

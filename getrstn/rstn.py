@@ -70,6 +70,7 @@ class GetRSTN(object):
         else:
             os.mkdir(self._path)
         self._station = station
+        self.rstn_data = None
 
     def get_filename(self):
         return self._filename
@@ -294,15 +295,14 @@ class GetRSTN(object):
         self._filename = final_name[0]
         return final_name[0]
 
-    def plot(self):
-        """Plots the data from the day.
-
+    def create_dataframe(self):
+        """Creates the dataframe with the file's data.
+        
         Returns:
-            {matplotlib.Axes} -- Graphic's axes for manipulation.
+            {pd.DataFrame} -- The dataframe with the data.
         """
 
-        data = np.genfromtxt(self._path + self._filename,
-                delimiter=2*[4]+5*[2]+8*[7], missing_values=515)
+        data = np.genfromtxt(self._path + self._filename, delimiter=2*[4]+5*[2]+8*[6], missing_values=515)
 
         day = data[:, 3]
         time = data[:, 4] + data[:, 5]/60. + data[:, 6]/3600.
@@ -320,9 +320,19 @@ class GetRSTN(object):
             "flux15400": data[:, 14] - np.nanmean(data[:, 14])
         }
 
-        rstn_data = pd.DataFrame(rstn_data, index=time)
+        self.rstn_data = pd.DataFrame(rstn_data, index=time)
 
-        ax = rstn_data.plot()
+        return self.rstn_data
+
+    def plot(self):
+        """Plots the data from the day.
+
+        Returns:
+            {matplotlib.Axes} -- Graphic's axes for manipulation.
+        """
+
+        self.create_dataframe()
+        ax = self.rstn_data.plot()
         ax.xaxis.set_major_formatter(DateFormatter("%H:%M"))
 
         return ax

@@ -53,7 +53,7 @@ class GetRSTN(object):
     """
 
     def __init__(self, day, month, year, path, station='Sagamore Hill'):
-        #pylint: disable-msg=R0913
+        # pylint: disable-msg=R0913
         self._day = str(day)
         if len(self._day) == 1:
             self._day = '0' + self._day
@@ -125,7 +125,8 @@ class GetRSTN(object):
         """Creates the file extension upper case.
 
         Keyword Arguments:
-            file_gzip {bool} -- Sets if the extension will have .gz. (default: {True})
+            file_gzip {bool} -- Sets if the extension will have .gz.
+                                (default: {True})
 
         Returns:
             {str} -- The extension.
@@ -149,7 +150,8 @@ class GetRSTN(object):
         """Creates the file extension lower case.
 
         Keyword Arguments:
-            file_gzip {bool} -- Sets if the extension will have .gz. (default: {True})
+            file_gzip {bool} -- Sets if the extension will have .gz.
+                                (default: {True})
 
         Returns:
             {str} -- The extension.
@@ -183,8 +185,7 @@ class GetRSTN(object):
             False) + self.__set_file_extension_lower(False)
 
         for arquivo in arquivos:
-            if (arquivo == filename_upper or
-                    arquivo == filename_lower):
+            if arquivo in (filename_upper, filename_lower):
                 self._filename = arquivo
                 return True
 
@@ -194,7 +195,8 @@ class GetRSTN(object):
         """Creates the file name.
 
         Arguments:
-            upper {bool} -- Sets if the file is going to be upper case or lower case.
+            upper {bool} -- Sets if the file is going to be upper case
+                            or lower case.
 
         Returns:
             {str} -- The file's name.
@@ -211,7 +213,8 @@ class GetRSTN(object):
         """Creates the url of the file to be downloaded.
 
         Arguments:
-            upper {bool} -- Used to try downloading both name in upper and lower case.
+            upper {bool} -- Used to try downloading both name in upper
+                            and lower case.
 
         Returns:
             {str} -- The whole url.
@@ -302,6 +305,16 @@ class GetRSTN(object):
         self._filename = final_name[0]
         return final_name[0]
 
+    def _read_file(self):
+        """Reads the file.
+
+        Returns:
+            {numpy.ndarray} -- The data.
+        """
+        data = np.genfromtxt(self._path + self._filename,
+                             delimiter=2*[4]+5*[2]+8*[6], missing_values=515)
+        return data
+
     def create_dataframe(self):
         """Creates the dataframe with the file's data.
 
@@ -309,12 +322,12 @@ class GetRSTN(object):
             {pd.DataFrame} -- The dataframe with the data.
         """
 
-        data = np.genfromtxt(self._path + self._filename,
-                             delimiter=2*[4]+5*[2]+8*[6], missing_values=515)
+        data = self._read_file()
 
         day = data[:, 3]
         time = data[:, 4] + data[:, 5]/60. + data[:, 6]/3600.
-        date = dt.date(int(self._year), int(self._month), int(self._day)).toordinal()
+        date = dt.date(int(self._year), int(self._month),
+                       int(self._day)).toordinal()
         time = num2date(date + (day - int(self._day)) + hours(time))
 
         rstn_data = {

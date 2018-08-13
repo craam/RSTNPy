@@ -315,11 +315,11 @@ class GetRSTN(object):
                              delimiter=2*[4]+5*[2]+8*[6], missing_values=515)
         return data
 
-    def create_dataframe(self):
-        """Creates the dataframe with the file's data.
-
+    def _gen_file_timeindex(self):
+        """Generates the time from the file to be used as index.
+        
         Returns:
-            {pd.DataFrame} -- The dataframe with the data.
+            {list} -- The time of each line.
         """
 
         data = self._read_file()
@@ -328,7 +328,19 @@ class GetRSTN(object):
         time = data[:, 4] + data[:, 5]/60. + data[:, 6]/3600.
         date = dt.date(int(self._year), int(self._month),
                        int(self._day)).toordinal()
-        time = num2date(date + (day - int(self._day)) + hours(time))
+        time = num2date(date + (day - int(self._day)) + hours(time)
+
+        return time
+
+    def create_dataframe(self):
+        """Creates the dataframe with the file's data.
+
+        Returns:
+            {pandas.DataFrame} -- The dataframe with the data.
+        """
+
+        data = self._read_file()
+        time = self._gen_file_timeindex()
 
         rstn_data = {
             "flux245": data[:, 7] - np.nanmean(data[:, 7]),

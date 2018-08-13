@@ -50,6 +50,7 @@ class GetRSTN(object):
         station {str} --  Station (default Sagamore Hill).
         filename {str} -- Name of the downloaded file.
         path {str} -- Absolute path for the file.
+        rstn_data {pandas.DataFrame} -- The data saved in a DataFrame.
     """
 
     def __init__(self, day, month, year, path, station='Sagamore Hill'):

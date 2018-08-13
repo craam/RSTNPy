@@ -328,7 +328,7 @@ class GetRSTN(object):
         time = data[:, 4] + data[:, 5]/60. + data[:, 6]/3600.
         date = dt.date(int(self._year), int(self._month),
                        int(self._day)).toordinal()
-        time = num2date(date + (day - int(self._day)) + hours(time)
+        time = num2date(date + (day - int(self._day)) + hours(time))
 
         return time
 

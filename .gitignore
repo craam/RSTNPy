@@ -120,3 +120,6 @@ venv.bak/
 # Vim and emacs files
 *.swp
 *~
+
+# Any jupyter notebook
+*.ipynb

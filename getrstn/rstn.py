@@ -21,6 +21,7 @@ import datetime as dt
 import os
 import gzip
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import wget
@@ -31,6 +32,8 @@ try:
     from urllib.error import HTTPError
 except ImportError:
     from urllib2 import HTTPError
+
+from exceptions import *
 
 
 class GetRSTN(object):
@@ -66,9 +69,7 @@ class GetRSTN(object):
         self._path = str(path)
         if self._path[-1] != "/":
             self._path += "/"
-        if os.path.exists(self._path):
-            print("Path exists")
-        else:
+        if not os.path.exists(self._path):
             os.mkdir(self._path)
         self._station = station
         self._filename = None
@@ -253,12 +254,14 @@ class GetRSTN(object):
         try:
             url = self.__set_url(True)
             filename = wget.download(url)
+            os.rename(filename, self._path + filename)
         except HTTPError:
             try:
                 url = self.__set_url(False)
                 filename = wget.download(url)
+                os.rename(filename, self._path + filename)
             except HTTPError:
-                filename = "no_data"
+                raise FileNotFoundOnServer("File not found on server.")
 
         self._filename = filename
         return True
@@ -275,36 +278,24 @@ class GetRSTN(object):
         """
 
         if download:
-            self.download_data()
-
-        if self.file_exists():
-            print("File already downloaded")
-            return self._filename
-
-        # Checks if the filename variable exists.
-        try:
-            if self._filename == "no_data":
-                print("No file")
+            try:
+                if not self.download_data():
+                    return False
+            except FileNotFoundOnServer:
+                print("File does not exist on server")
                 return False
-        except AttributeError:
-            raise AttributeError("You need to download the file first.")
 
-        with gzip.open(self._filename, 'rb') as _file:
+        with gzip.open(self._path + self._filename, 'rb') as _file:
             file_content = _file.read()
             # Removes .gz from filename.
-            final_name = self._filename.split('.gz')
-            with open(final_name[0], 'wb') as final_file:
+            final_name = self._filename.split('.gz')[0]
+            with open(self._path + final_name, 'wb') as final_file:
                 # Saves the content to a new file.
                 final_file.write(file_content)
 
-        try:
-            os.rename(final_name[0], self._path + final_name[0])
-        except Exception:
-            pass
-
-        os.remove(self._filename)
-        self._filename = final_name[0]
-        return final_name[0]
+        os.remove(self._path + self._filename)
+        self._filename = final_name
+        return final_name
 
     def _read_file(self):
         """Reads the file.
@@ -312,18 +303,24 @@ class GetRSTN(object):
         Returns:
             {numpy.ndarray} -- The data.
         """
-        data = np.genfromtxt(self._path + self._filename,
-                             delimiter=2*[4]+5*[2]+8*[6], missing_values=515)
-        return data
+        if self._filename is not None:
+            data = np.genfromtxt(self._path + self._filename,
+                                 delimiter=2*[4]+5*[2]+8*[6], missing_values=515)
+            return data
+
+        raise NoneFilename
 
     def _gen_file_timeindex(self):
         """Generates the time from the file to be used as index.
-        
+
         Returns:
             {list} -- The time of each line.
         """
 
-        data = self._read_file()
+        try:
+            data = self._read_file()
+        except NoneFilename:
+            return False
 
         day = data[:, 3]
         time = data[:, 4] + data[:, 5]/60. + data[:, 6]/3600.
@@ -340,8 +337,13 @@ class GetRSTN(object):
             {pandas.DataFrame} -- The dataframe with the data.
         """
 
-        data = self._read_file()
-        time = self._gen_file_timeindex()
+        try:
+            data = self._read_file()
+            time = self._gen_file_timeindex()
+        except NoneFilename:
+            print("No file")
+            return False
+
 
         rstn_data = {
             "flux245": data[:, 7] - np.nanmean(data[:, 7]),
@@ -365,7 +367,11 @@ class GetRSTN(object):
             {matplotlib.Axes} -- Graphic's axes for manipulation.
         """
 
-        self.create_dataframe()
+        if self.rstn_data is None:
+            if self.create_dataframe() is False:
+                print("Can't plot data")
+                return False
+
         ax = self.rstn_data.plot()
         ax.xaxis.set_major_formatter(DateFormatter("%H:%M"))
 

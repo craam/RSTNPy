@@ -14,7 +14,9 @@ setup(
     packages=['getrstn'],
     include_package_data=True,
     install_requires=[
-        'wget'
+        'wget>=3.2',
+        'numpy>=1.13',
+        'pandas>=0.21'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

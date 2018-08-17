@@ -242,6 +242,9 @@ class GetRSTN(object):
 
         Returns:
             {bool} -- True when the file was downloaded.
+
+        Raises:
+            FileNotFoundOnServer: The file does not exist.
         """
 
         if self.file_exists():
@@ -301,6 +304,9 @@ class GetRSTN(object):
 
         Returns:
             {numpy.ndarray} -- The data.
+
+        Raises:
+            NoneFilename: Filename is not set.
         """
         if self._filename is not None:
             data = np.genfromtxt(self._path + self._filename,
@@ -360,7 +366,7 @@ class GetRSTN(object):
         return self.rstn_data
 
     def plot(self):
-        """Plots the data from the day.
+        """Plots the file's data.
 
         Returns:
             {matplotlib.Axes} -- Graphic's axes for manipulation.

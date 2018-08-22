@@ -308,32 +308,48 @@ class GetRSTN(object):
         Raises:
             NoneFilename: Filename is not set.
         """
-        if self._filename is not None:
-            data = np.genfromtxt(self._path + self._filename,
-                                 delimiter=2*[4]+5*[2]+8*[6], missing_values=515)
-            return data
+        if self._filename is None:
+            raise NoneFilename
 
-        raise NoneFilename
+        rstn_data = {
+            "time": [],
+            "f245": [],
+            "f410": [],
+            "f610": [],
+            "f1415": [],
+            "f2695": [],
+            "f4995": [],
+            "f8800": [],
+            "f15400": []
+        }
 
-    def _gen_file_timeindex(self):
-        """Generates the time from the file to be used as index.
+        with open(self._path + self._filename) as file:
+            for line in file.readlines():
+                line = line.split()
 
-        Returns:
-            {list} -- The time of each line.
-        """
+                if len(line) != 9:
+                    continue
 
-        try:
-            data = self._read_file()
-        except NoneFilename:
-            return False
+                year = int(line[0][4:8])
+                month = int(line[0][8:10])
+                day = int(line[0][10:12])
+                hour = int(line[0][12:14])
+                minute = int(line[0][14:16])
+                second = int(line[0][16:18])
 
-        day = data[:, 3]
-        time = data[:, 4] + data[:, 5]/60. + data[:, 6]/3600.
-        date = dt.date(int(self._year), int(self._month),
-                       int(self._day)).toordinal()
-        time = num2date(date + (day - int(self._day)) + hours(time))
+                date = dt.datetime(year, month, day, hour, minute, second)
 
-        return time
+                rstn_data["time"].append(date)
+                rstn_data["f245"].append(line[1])
+                rstn_data["f410"].append(line[2])
+                rstn_data["f610"].append(line[3])
+                rstn_data["f1415"].append(line[4])
+                rstn_data["f2695"].append(line[5])
+                rstn_data["f4995"].append(line[6])
+                rstn_data["f8800"].append(line[7])
+                rstn_data["f15400"].append(line[8])
+
+        return rstn_data
 
     def create_dataframe(self):
         """Creates the dataframe with the file's data.
@@ -344,25 +360,16 @@ class GetRSTN(object):
 
         try:
             data = self._read_file()
-            time = self._gen_file_timeindex()
         except NoneFilename:
             print("No file")
             return False
 
+        columns=["f245", "f410", "f610", "f1415",
+                 "f2695", "f4995", "f8800", "f15400"]
+        self.rstn_data = pd.DataFrame(data, columns=columns,
+                                      index=data["time"])
 
-        rstn_data = {
-            "flux245": data[:, 7] - np.nanmean(data[:, 7]),
-            "flux410": data[:, 8] - np.nanmean(data[:, 8]),
-            "flux610": data[:, 9] - np.nanmean(data[:, 9]),
-            "flux1415": data[:, 10] - np.nanmean(data[:, 10]),
-            "flux2695": data[:, 11] - np.nanmean(data[:, 11]),
-            "flux4995": data[:, 12] - np.nanmean(data[:, 12]),
-            "flux8800": data[:, 13] - np.nanmean(data[:, 13]),
-            "flux15400": data[:, 14] - np.nanmean(data[:, 14])
-        }
-
-        self.rstn_data = pd.DataFrame(rstn_data, index=time)
-
+        self.rstn_data = self.rstn_data.astype(np.float64)
         return self.rstn_data
 
     def plot(self):

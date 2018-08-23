@@ -311,15 +311,8 @@ class GetRSTN(object):
         if self._filename is None:
             raise NoneFilename
 
-        rstn_data = {
-            "time": [],
-            "f245": [],
-            "f410": [],
-            "f610": [],
-            "f1415": [],
-            "f2695": [],
-            "f4995": [],
-            "f8800": [],
+        rstn_data = { "time": [], "f245": [], "f410": [], "f610": [],
+            "f1415": [], "f2695": [], "f4995": [], "f8800": [],
             "f15400": []
         }
 
@@ -369,7 +362,7 @@ class GetRSTN(object):
         self.rstn_data = pd.DataFrame(data, columns=columns,
                                       index=data["time"])
 
-        self.rstn_data = self.rstn_data.astype(np.float64)
+        self.rstn_data = self.rstn_data.astype(np.int16)
         return self.rstn_data
 
     def plot(self):

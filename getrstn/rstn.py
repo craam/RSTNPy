@@ -32,7 +32,7 @@ try:
 except ImportError:
     from urllib2 import HTTPError
 
-from exceptions import *
+from .exceptions import *
 
 
 class GetRSTN(object):

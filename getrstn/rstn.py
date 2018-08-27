@@ -363,6 +363,7 @@ class GetRSTN(object):
                                       index=data["time"])
 
         self.rstn_data = self.rstn_data.astype(np.int16)
+        self.rstn_data.index = self.rstn_data.index.tz_localize("UTC")
         return self.rstn_data
 
     def plot(self):

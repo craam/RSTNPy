@@ -3,7 +3,7 @@ Download RSTN's data from noaa's site.
 
 ## Installation
 
-```console
+```bash
 pip install getrstn
 ```
 

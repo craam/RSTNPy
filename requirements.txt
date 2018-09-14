@@ -1,3 +1,4 @@
 wget>=3.2
 numpy>=1.13
 pandas>=0.21
+matplotlib>=2.2.2

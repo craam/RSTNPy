@@ -5,7 +5,7 @@ with open("README.md", "r") as readme:
 
 setup(
     name="getrstn",
-    version="0.3.3.2",
+    version="0.3.3.3",
     author="Edison Neto and Douglas Silva",
     author_email="ednetoali@gmail.com",
     description="Downloads rstn-1-second data",
@@ -17,6 +17,7 @@ setup(
         'wget>=3.2',
         'numpy>=1.13',
         'pandas>=0.21'
+        'matplotlib>=2.2.2'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

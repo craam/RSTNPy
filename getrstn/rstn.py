@@ -25,14 +25,14 @@ import numpy as np
 import pandas as pd
 import wget
 
-from matplotlib.dates import hours, num2date, DateFormatter
+from matplotlib.dates import DateFormatter
 
 try:
     from urllib.error import HTTPError
 except ImportError:
     from urllib2 import HTTPError
 
-from .exceptions import *
+from .exceptions import FileNotFoundOnServer, NoneFilename
 
 
 class GetRSTN(object):
@@ -311,10 +311,10 @@ class GetRSTN(object):
         if self._filename is None:
             raise NoneFilename
 
-        rstn_data = { "time": [], "f245": [], "f410": [], "f610": [],
-            "f1415": [], "f2695": [], "f4995": [], "f8800": [],
-            "f15400": []
-        }
+        rstn_data = {"time": [], "f245": [], "f410": [], "f610": [],
+                     "f1415": [], "f2695": [], "f4995": [], "f8800": [],
+                     "f15400": []
+                     }
 
         with open(self._path + self._filename) as file:
             for line in file.readlines():
@@ -354,11 +354,10 @@ class GetRSTN(object):
         try:
             data = self._read_file()
         except NoneFilename:
-            print("No file")
-            return False
+            raise Exception("File not found")
 
-        columns=["f245", "f410", "f610", "f1415",
-                 "f2695", "f4995", "f8800", "f15400"]
+        columns = ["f245", "f410", "f610", "f1415",
+                   "f2695", "f4995", "f8800", "f15400"]
         self.rstn_data = pd.DataFrame(data, columns=columns,
                                       index=data["time"])
 

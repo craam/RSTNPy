@@ -1,20 +1,3 @@
-"""
-Edison Neto. This software downloads rstn data from noaa's site.
-
-Copyright (C) 2018 Edison Neto
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-"""
-
 from __future__ import print_function
 
 import datetime as dt
@@ -37,22 +20,17 @@ from .exceptions import FileNotFoundOnServer, NoneFilename
 
 class GetRSTN(object):
 
-    """Download solar data from noaa's site.
+    """Download rstn 1 second data from noaa's site.
 
-    Args:
-        day {str or int} -- event's day.
-        month {str or int} -- event's month.
-        year {str or int} --  events' year.
-        station {str, optional} -- Station (default Sagamore Hill).
+    :param day: Event's day.
+    :type day: int or str
+    :param month: Event's month.
+    :type month: int or str
+    :param year: Events' year.
+    :type year: int or str
+    :param station: Station (default: Sagamore Hill).
+    :type station: str
 
-    Attributes:
-        day {str} -- event's day.
-        month {str} -- event's month.
-        year {str} -- events' year.
-        station {str} --  Station (default Sagamore Hill).
-        filename {str} -- Name of the downloaded file.
-        path {str} -- Absolute path for the file.
-        rstn_data {pandas.DataFrame} -- The data saved in a DataFrame.
     """
 
     def __init__(self, day, month, year, path, station='Sagamore Hill'):
@@ -77,8 +55,9 @@ class GetRSTN(object):
     def get_filename(self):
         """Gets the filename.
 
-        Returns:
-            {str} -- Filename
+        :returnss: Filename
+        :rtype: str
+
         """
 
         return self._filename
@@ -86,16 +65,18 @@ class GetRSTN(object):
     def __set_station_name(self):
         """Sets the station name as it is in noaa's site.
 
-        Returns:
-            {str} -- The station as in the site.
+        :returns: The station name as it is in the site.
+        :rtype: str
+
         """
         return self._station.lower().replace(' ', '-')
 
     def __change_month_upper(self):
         """Sets the month for the filename in upper case.
 
-        Returns:
-            {str} -- The month.
+        :returns: The month in upper case.
+        :rtype: str
+
         """
         months = [
             "JAN", "FEV", "MAR", "APR", "MAY", "JUN",
@@ -109,8 +90,9 @@ class GetRSTN(object):
     def __change_month_lower(self):
         """Sets the month for the filename in lowercase.
 
-        Returns:
-            {str} -- The month.
+        :returns: The month in lower cas e.
+        :rtype: str
+
         """
 
         months = [
@@ -125,12 +107,11 @@ class GetRSTN(object):
     def __set_file_extension_upper(self, file_gzip=True):
         """Creates the file extension upper case.
 
-        Keyword Arguments:
-            file_gzip {bool} -- Sets if the extension will have .gz.
-                                (default: {True})
+        :param file_gzip: Sets if the extension will have .gz.
+        :type file_gzip: bool
 
-        Returns:
-            {str} -- The extension.
+        :returns: The file extension.
+        :rtype: str
         """
 
         if self._station.lower() == "sagamore hill":
@@ -150,12 +131,11 @@ class GetRSTN(object):
     def __set_file_extension_lower(self, file_gzip=True):
         """Creates the file extension lower case.
 
-        Keyword Arguments:
-            file_gzip {bool} -- Sets if the extension will have .gz.
-                                (default: {True})
+        :param file_gzip: Sets if the extension will have .gz.
+        :type file_gzip: bool
 
-        Returns:
-            {str} -- The extension.
+        :returns: The file extension.
+        :rtype: str
         """
 
         if self._station.lower() == "sagamore hill":
@@ -173,21 +153,22 @@ class GetRSTN(object):
         return extension
 
     def file_exists(self):
-        """Sees if the file exists.
+        """Checks if the file exists.
 
-        Returns:
-            {bool} -- True if the file exists.
+        :returns: True if the file exists.
+        :rtype: bool
+
         """
 
-        arquivos = os.listdir(self._path)
+        files = os.listdir(self._path)
         filename_upper = self.__set_filename(
             True) + self.__set_file_extension_lower(False)
         filename_lower = self.__set_filename(
             False) + self.__set_file_extension_lower(False)
 
-        for arquivo in arquivos:
-            if arquivo in (filename_upper, filename_lower):
-                self._filename = arquivo
+        for _file in files:
+            if _file in (filename_upper, filename_lower):
+                self._filename = _file
                 return True
 
         return False
@@ -195,12 +176,11 @@ class GetRSTN(object):
     def __set_filename(self, upper):
         """Creates the file name.
 
-        Arguments:
-            upper {bool} -- Sets if the file is going to be upper case
-                            or lower case.
+        :param upper: Sets if the filename is going to be upper or lower case.
+        :type upper: bool
 
-        Returns:
-            {str} -- The file's name.
+        :returns: The filename.
+        :rtype: str
         """
 
         if upper:
@@ -240,11 +220,12 @@ class GetRSTN(object):
     def download_data(self):
         """Downloads the file via https.
 
-        Returns:
-            {bool} -- True when the file was downloaded.
+        :returns: True when the file was downloaded.
+        :rtype: bool
 
-        Raises:
-            FileNotFoundOnServer: The file does not exist.
+        :raises FileNotFoundOnServer: If the file does not exist in noaa's
+                                      website.
+
         """
 
         if self.file_exists():
@@ -272,11 +253,12 @@ class GetRSTN(object):
         """It doesn't really decompress the file, it saves the data
         inside in a different file with the same name.
 
-        Keyword Arguments:
-            download {bool} -- Downloads the file or not. (default: {False})
+        :param download: Downloads the file or not.
+        :type download: bool
 
-        Returns:
-            {str} -- File's final name.
+        :returns: File's final name.
+        :rtype: str
+
         """
 
         if download:
@@ -299,14 +281,14 @@ class GetRSTN(object):
         self._filename = final_name
         return final_name
 
-    def _read_file(self):
-        """Reads the file.
+    def read_file(self):
+        """Reads the file data and saves it in columns by frequency.
 
-        Returns:
-            {numpy.ndarray} -- The data.
+        :returns: The data in arrays.
+        :rtype: dict
 
-        Raises:
-            NoneFilename: Filename is not set.
+        :raises NoneFilename: If filename is not set.
+
         """
         if self._filename is None:
             raise NoneFilename
@@ -347,12 +329,13 @@ class GetRSTN(object):
     def create_dataframe(self):
         """Creates the dataframe with the file's data.
 
-        Returns:
-            {pandas.DataFrame} -- The dataframe with the data.
+        :returns: The dataframe with the data.
+        :rtype: pandas.DataFrame
+
         """
 
         try:
-            data = self._read_file()
+            data = self.read_file()
         except NoneFilename:
             raise Exception("File not found")
 
@@ -368,8 +351,9 @@ class GetRSTN(object):
     def plot(self):
         """Plots the file's data.
 
-        Returns:
-            {matplotlib.Axes} -- Graphic's axes for manipulation.
+        :returns: Graphic's axes object for manipulation.
+        :rtype: matplotlib.Axes
+
         """
 
         if self.rstn_data is None:

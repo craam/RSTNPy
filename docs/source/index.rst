@@ -11,16 +11,8 @@ Welcome to GetRSTN's documentation!
    :caption: Contents:
 
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-Api
-==================
+Documentation
+=============
 
 .. automodule:: getrstn.rstn
     :members:

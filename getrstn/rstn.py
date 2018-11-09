@@ -19,22 +19,38 @@ from .exceptions import FileNotFoundOnServer, NoneFilename
 
 
 class GetRSTN(object):
-
     """Download rstn 1 second data from noaa's site.
 
-    :param day: Event's day.
-    :type day: int or str
-    :param month: Event's month.
-    :type month: int or str
-    :param year: Events' year.
-    :type year: int or str
-    :param station: Station (default: Sagamore Hill).
-    :type station: str
+    Attributes
+    ----------
+    day: int or str
+        Event's day.
+    month: int or str
+        Event's month.
+    year: int or str
+        Events' year.
+    station: str
+        Station (default: Sagamore Hill).
 
     """
 
     def __init__(self, day, month, year, path, station='Sagamore Hill'):
-        # pylint: disable-msg=R0913
+        """Download rstn 1 second data from noaa's site.
+
+        Parameters
+        ----------
+        day: int or str
+            Event's day.
+        month: int or str
+            Event's month.
+        year: int or str
+            Events' year.
+        path: str
+            Path to the file.
+        station: str, optional
+            Station
+
+        """
         self._day = str(day)
         if len(self._day) == 1:
             self._day = '0' + self._day
@@ -55,8 +71,10 @@ class GetRSTN(object):
     def get_filename(self):
         """Gets the filename.
 
-        :returnss: Filename
-        :rtype: str
+        Returns
+        -------
+        str
+            Filename
 
         """
 
@@ -65,8 +83,10 @@ class GetRSTN(object):
     def __set_station_name(self):
         """Sets the station name as it is in noaa's site.
 
-        :returns: The station name as it is in the site.
-        :rtype: str
+        Returns
+        -------
+        str
+            The station name as it is in the site.
 
         """
         return self._station.lower().replace(' ', '-')
@@ -74,8 +94,10 @@ class GetRSTN(object):
     def __change_month_upper(self):
         """Sets the month for the filename in upper case.
 
-        :returns: The month in upper case.
-        :rtype: str
+        Returns
+        -------
+        str
+            The month in upper case.
 
         """
         months = [
@@ -90,8 +112,10 @@ class GetRSTN(object):
     def __change_month_lower(self):
         """Sets the month for the filename in lowercase.
 
-        :returns: The month in lower cas e.
-        :rtype: str
+        Returns
+        -------
+        str
+            The month in lower cas e.
 
         """
 
@@ -107,11 +131,16 @@ class GetRSTN(object):
     def __set_file_extension_upper(self, file_gzip=True):
         """Creates the file extension upper case.
 
-        :param file_gzip: Sets if the extension will have .gz.
-        :type file_gzip: bool
+        Parameters
+        ----------
+        file_gzip: bool
+            Sets if the extension will have .gz.
 
-        :returns: The file extension.
-        :rtype: str
+        Returns
+        -------
+        str
+            The file extension.
+
         """
 
         if self._station.lower() == "sagamore hill":
@@ -131,11 +160,17 @@ class GetRSTN(object):
     def __set_file_extension_lower(self, file_gzip=True):
         """Creates the file extension lower case.
 
-        :param file_gzip: Sets if the extension will have .gz.
-        :type file_gzip: bool
 
-        :returns: The file extension.
-        :rtype: str
+        Parameters
+        ----------
+        file_gzip: bool
+            Sets if the extension will have .gz.
+
+        Returns
+        -------
+        str
+            The file extension.
+
         """
 
         if self._station.lower() == "sagamore hill":
@@ -155,8 +190,10 @@ class GetRSTN(object):
     def file_exists(self):
         """Checks if the file exists.
 
-        :returns: True if the file exists.
-        :rtype: bool
+        Returns
+        -------
+        bool
+            True if the file exists.
 
         """
 
@@ -176,11 +213,17 @@ class GetRSTN(object):
     def __set_filename(self, upper):
         """Creates the file name.
 
-        :param upper: Sets if the filename is going to be upper or lower case.
-        :type upper: bool
 
-        :returns: The filename.
-        :rtype: str
+        Parameters
+        ----------
+        upper: bool
+            Sets if the filename is going to be upper or lower case.
+
+        Returns
+        -------
+        str
+            The filename.
+
         """
 
         if upper:
@@ -193,12 +236,15 @@ class GetRSTN(object):
     def __set_url(self, upper):
         """Creates the url of the file to be downloaded.
 
-        Arguments:
-            upper {bool} -- Used to try downloading both name in upper
-                            and lower case.
+        Parameters
+        ----------
+        upper: bool
+            Used to try downloading both name in upper and lower case.
 
-        Returns:
-            {str} -- The whole url.
+        Returns
+        -------
+        str
+            The whole url.
         """
 
         station_name = self.__set_station_name()
@@ -220,11 +266,15 @@ class GetRSTN(object):
     def download_data(self):
         """Downloads the file via https.
 
-        :returns: True when the file was downloaded.
-        :rtype: bool
+        Returns
+        -------
+        bool
+            True when the file was downloaded.
 
-        :raises FileNotFoundOnServer: If the file does not exist in noaa's
-                                      website.
+        Raises
+        ------
+        FileNotFoundOnServer
+            If the file does not exist in noaa's website.
 
         """
 
@@ -249,15 +299,21 @@ class GetRSTN(object):
         self._filename = filename
         return True
 
-    def decompress_file(self, download=False):
-        """It doesn't really decompress the file, it saves the data
-        inside in a different file with the same name.
+    def get_file_content(self, download=True):
+        """Gets gzipped file content.
 
-        :param download: Downloads the file or not.
-        :type download: bool
+        It doesn't decompress the file. It reads the compressed data and
+        writes it in a new file.
 
-        :returns: File's final name.
-        :rtype: str
+        Parameters
+        ----------
+        download: bool, optional
+            Downloads the file or not.
+
+        Returns
+        -------
+        str
+            File's final name.
 
         """
 
@@ -269,8 +325,8 @@ class GetRSTN(object):
                 print("File does not exist on server")
                 return False
 
-        with gzip.open(self._path + self._filename, 'rb') as _file:
-            file_content = _file.read()
+        with gzip.open(self._path + self._filename, 'rb') as gzipped_file:
+            file_content = gzipped_file.read()
             # Removes .gz from filename.
             final_name = self._filename.split('.gz')[0]
             with open(self._path + final_name, 'wb') as final_file:
@@ -284,10 +340,15 @@ class GetRSTN(object):
     def read_file(self):
         """Reads the file data and saves it in columns by frequency.
 
-        :returns: The data in arrays.
-        :rtype: dict
+        Returns
+        -------
+        dict
+            The data in arrays.
 
-        :raises NoneFilename: If filename is not set.
+        Raises
+        ------
+        NoneFilename
+            If filename is not set.
 
         """
         if self._filename is None:
@@ -329,8 +390,10 @@ class GetRSTN(object):
     def create_dataframe(self):
         """Creates the dataframe with the file's data.
 
-        :returns: The dataframe with the data.
-        :rtype: pandas.DataFrame
+        Returns
+        -------
+        pandas.DataFrame
+            The dataframe with the data.
 
         """
 
@@ -351,8 +414,10 @@ class GetRSTN(object):
     def plot(self):
         """Plots the file's data.
 
-        :returns: Graphic's axes object for manipulation.
-        :rtype: matplotlib.Axes
+        Returns
+        -------
+        matplotlib.Axes
+            Graphic's axes object for manipulation.
 
         """
 

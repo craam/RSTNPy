@@ -1,4 +1,5 @@
 # GetRSTN
+
 Download RSTN's data from noaa's site. 
 
 ## Installation
@@ -21,7 +22,7 @@ station = "San vito"
 rstn = GetRSTN(day, month, year, path_to_files, station)
 
 # Downloads and decompress the file.
-rstn.decompress_file(download=True)
+rstn.get_file_content(download=True)
 
 # Plots the data.
 ax = rstn.plot()

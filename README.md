@@ -22,7 +22,7 @@ station = "San vito"
 rstn = GetRSTN(day, month, year, path_to_files, station)
 
 # Downloads and decompress the file.
-rstn.get_file_content(download=True)
+rstn.get_file_content()
 
 # Plots the data.
 ax = rstn.plot()

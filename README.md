@@ -1,6 +1,6 @@
 # GetRSTN
 
-Download RSTN's data from noaa's site. 
+Download RSTN 1 second data from NOAA's site. 
 
 ## Installation
 

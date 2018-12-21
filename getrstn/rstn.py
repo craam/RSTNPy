@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import datetime as dt
 import os
 import gzip
 
@@ -8,14 +7,17 @@ import numpy as np
 import pandas as pd
 import wget
 
-from matplotlib.dates import DateFormatter
+from datetime import datetime
 
 try:
     from urllib.error import HTTPError
 except ImportError:
     from urllib2 import HTTPError
 
-from .exceptions import FileNotFoundOnServer, NoneFilename
+from .exceptions import (
+    FileNotFoundOnServer, FilenameNotSetError,
+    DataFrameNotCreatedError
+)
 
 
 class GetRSTN(object):
@@ -28,35 +30,17 @@ class GetRSTN(object):
     month: int or str
         Event's month.
     year: int or str
-        Events' year.
+        Event's year.
+    path: str
+        Where the files are/will be stored.
     station: str
         Station (default: Sagamore Hill).
 
     """
 
     def __init__(self, day, month, year, path, station='Sagamore Hill'):
-        """Download rstn 1 second data from noaa's site.
-
-        Parameters
-        ----------
-        day: int or str
-            Event's day.
-        month: int or str
-            Event's month.
-        year: int or str
-            Events' year.
-        path: str
-            Path to the file.
-        station: str, optional
-            Station
-
-        """
-        self._day = str(day)
-        if len(self._day) == 1:
-            self._day = '0' + self._day
-        self._month = str(month)
-        if len(self._month) == 1:
-            self._month = '0' + self._month
+        self._day = self.__format_day(day)
+        self._month = self.__format_month(month)
         self._year = str(year)
 
         self._path = str(path)
@@ -66,8 +50,65 @@ class GetRSTN(object):
             os.mkdir(self._path)
         self._station = station
         self._filename = None
-        self.rstn_data = None
+        self.dataframe = None
+        self.__station_extensions = {
+            "sagamore hill": {
+                "lower": "k7o", "upper": "K7O"
+            },
+            "san vito": {
+                "lower": "lis", "upper": "LIS"
+            },
+            "palehua": {
+                "lower": "phf", "upper": "PHF"
+            },
+            "learmonth": {
+                "lower": "apl", "upper": "APL"
+            }
+        }
 
+    def __format_day(self, day):
+        """Formats the day as a string in the format dd.
+
+        Parameters
+        ----------
+        day: str or int
+            The day to be formatted.
+
+        Returns
+        -------
+        day: str
+            Formatted day.
+
+        """
+
+        day = str(day)
+        if len(day) == 1:
+            day = '0' + day
+
+        return day
+
+    def __format_month(self, month):
+        """Formats the month as a string in the format mm.
+
+        Parameters
+        ----------
+        month: str or int
+            The month to be formatted.
+
+        Returns
+        -------
+        month: str
+            Formatted month.
+
+        """
+
+        month = str(month)
+        if len(month) == 1:
+            month = '0' + month
+
+        return month
+
+    @property
     def get_filename(self):
         """Gets the filename.
 
@@ -80,16 +121,39 @@ class GetRSTN(object):
 
         return self._filename
 
-    def __set_station_name(self):
-        """Sets the station name as it is in noaa's site.
+    def __format_station_for_url(self, station):
+        """Formats the station name as it is in NOAA's site for the url.
 
         Returns
         -------
         str
-            The station name as it is in the site.
+            The station name as it is in the site url.
 
         """
-        return self._station.lower().replace(' ', '-')
+
+        return station.lower().replace(' ', '-')
+
+    def __cast_to_int16(self, number):
+        """Casts a number to the numpy int16 type.
+        
+        Parameters
+        ----------
+        number: int or str
+            The number that will be changed.
+        
+        Returns
+        -------
+        number: np.int16 or np.nan
+            The number as a int16 or NaN.
+
+        """
+
+        try:
+            number = np.int16(number)
+        except ValueError:
+            number = np.nan
+
+        return number
 
     def __change_month_upper(self):
         """Sets the month for the filename in upper case.
@@ -100,8 +164,9 @@ class GetRSTN(object):
             The month in upper case.
 
         """
+
         months = [
-            "JAN", "FEV", "MAR", "APR", "MAY", "JUN",
+            "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
             "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
         ]
 
@@ -115,12 +180,12 @@ class GetRSTN(object):
         Returns
         -------
         str
-            The month in lower cas e.
+            The month in lower case.
 
         """
 
         months = [
-            "jan", "fev", "mar", "apr", "may", "jun",
+            "jan", "feb", "mar", "apr", "may", "jun",
             "jul", "aug", "sep", "oct", "nov", "dec"
         ]
 
@@ -143,14 +208,7 @@ class GetRSTN(object):
 
         """
 
-        if self._station.lower() == "sagamore hill":
-            extension = ".K7O"
-        elif self._station.lower() == "san vito":
-            extension = ".LIS"
-        elif self._station.lower() == "palehua":
-            extension = ".PHF"
-        elif self._station.lower() == "learmonth":
-            extension = ".APL"
+        extension = "." + self.__station_extensions[self._station.lower()]["upper"]
 
         if file_gzip:
             return extension + ".gz"
@@ -173,14 +231,7 @@ class GetRSTN(object):
 
         """
 
-        if self._station.lower() == "sagamore hill":
-            extension = ".k7o"
-        elif self._station.lower() == "san vito":
-            extension = ".lis"
-        elif self._station.lower() == "palehua":
-            extension = ".phf"
-        elif self._station.lower() == "learmonth":
-            extension = ".apl"
+        extension = "." + self.__station_extensions[self._station.lower()]["lower"]
 
         if file_gzip:
             return extension + ".gz"
@@ -193,13 +244,13 @@ class GetRSTN(object):
         Returns
         -------
         bool
-            True if the file exists.
+            If the file exists.
 
         """
 
         files = os.listdir(self._path)
         filename_upper = self.__set_filename(
-            True) + self.__set_file_extension_lower(False)
+            True) + self.__set_file_extension_upper(False)
         filename_lower = self.__set_filename(
             False) + self.__set_file_extension_lower(False)
 
@@ -212,7 +263,6 @@ class GetRSTN(object):
 
     def __set_filename(self, upper):
         """Creates the file name.
-
 
         Parameters
         ----------
@@ -245,9 +295,10 @@ class GetRSTN(object):
         -------
         str
             The whole url.
+
         """
 
-        station_name = self.__set_station_name()
+        station_name = self.__format_station_for_url(self._station)
 
         if upper:
             filename = self.__set_filename(True)
@@ -256,8 +307,8 @@ class GetRSTN(object):
             filename = self.__set_filename(False)
             file_extension = self.__set_file_extension_lower()
 
-        url = 'https://www.ngdc.noaa.gov/stp/space-weather/solar-data/'
-        url += 'solar-features/solar-radio/rstn-1-second/'
+        url = "https://www.ngdc.noaa.gov/stp/space-weather/solar-data/"
+        url += "solar-features/solar-radio/rstn-1-second/"
         url += station_name + '/' + self._year + '/' + self._month + '/'
         url += filename + file_extension
 
@@ -279,22 +330,23 @@ class GetRSTN(object):
         """
 
         if self.file_exists():
-            print("File already downloaded")
+            print("File already downloaded.")
             return False
 
         # Tries to download with the file extension in upper case.
         # Then tries to download with the file extension in lower case.
         try:
-            url = self.__set_url(True)
+            url = self.__set_url(upper=True)
             filename = wget.download(url)
-            os.rename(filename, self._path + filename)
+            os.rename(filename, os.path.join(self._path, filename))
         except HTTPError:
             try:
-                url = self.__set_url(False)
+                url = self.__set_url(upper=False)
                 filename = wget.download(url)
-                os.rename(filename, self._path + filename)
+                os.rename(filename, os.path.join(self._path, filename))
             except HTTPError:
-                raise FileNotFoundOnServer("File not found on server.")
+                raise FileNotFoundOnServer(
+                    "The file on: "+ url + " was not found on server.")
 
         self._filename = filename
         return True
@@ -303,7 +355,7 @@ class GetRSTN(object):
         """Gets gzipped file content.
 
         It doesn't decompress the file. It reads the compressed data and
-        writes it in a new file.
+        writes it in a new file without the .gz extension.
 
         Parameters
         ----------
@@ -318,27 +370,29 @@ class GetRSTN(object):
         """
 
         if download:
-            try:
-                if not self.download_data():
-                    return False
-            except FileNotFoundOnServer:
-                print("File does not exist on server")
+            if not self.download_data():
                 return False
 
-        with gzip.open(self._path + self._filename, 'rb') as gzipped_file:
+        with gzip.open(os.path.join(self._path, self._filename), 'rb') as gzipped_file:
             file_content = gzipped_file.read()
-            # Removes .gz from filename.
+            # Separates the .gz extension from the filename.
             final_name = self._filename.split('.gz')[0]
-            with open(self._path + final_name, 'wb') as final_file:
+            with open(os.path.join(self._path, final_name), 'wb') as final_file:
                 # Saves the content to a new file.
                 final_file.write(file_content)
 
-        os.remove(self._path + self._filename)
+        os.remove(os.path.join(self._path, self._filename))
         self._filename = final_name
+
         return final_name
 
     def read_file(self):
         """Reads the file data and saves it in columns by frequency.
+
+        The first column is 18 digits long, the first 4 indicating the station,
+        the others the timestamp. Each column for the frequency is 6 digits
+        long if the year before 2007, if the year is 2008 or later than the
+        column is 7 digits long.
 
         Returns
         -------
@@ -347,43 +401,53 @@ class GetRSTN(object):
 
         Raises
         ------
-        NoneFilename
+        FilenameNotSetError
             If filename is not set.
 
         """
         if self._filename is None:
-            raise NoneFilename
+            raise FilenameNotSetError(
+                "The file "+ self._filename + "has an invalid name.")
 
         rstn_data = {"time": [], "f245": [], "f410": [], "f610": [],
                      "f1415": [], "f2695": [], "f4995": [], "f8800": [],
                      "f15400": []
                      }
 
-        with open(self._path + self._filename) as file:
-            for line in file.readlines():
-                line = line.split()
+        # Sets the interval for each frequency column.
+        if int(self._year) >= 2008:
+            interval = 7
+        else:
+            interval = 6
 
-                if len(line) != 9:
-                    continue
+        with open(os.path.join(self._path, self._filename)) as _file:
+            for line in _file.readlines():
+                year = int(line[4:8])
+                month = int(line[8:10])
+                day = int(line[10:12])
+                hour = int(line[12:14])
+                minute = int(line[14:16])
+                second = int(line[16:18])
 
-                year = int(line[0][4:8])
-                month = int(line[0][8:10])
-                day = int(line[0][10:12])
-                hour = int(line[0][12:14])
-                minute = int(line[0][14:16])
-                second = int(line[0][16:18])
-
-                date = dt.datetime(year, month, day, hour, minute, second)
+                date = datetime(year, month, day, hour, minute, second)
 
                 rstn_data["time"].append(date)
-                rstn_data["f245"].append(line[1])
-                rstn_data["f410"].append(line[2])
-                rstn_data["f610"].append(line[3])
-                rstn_data["f1415"].append(line[4])
-                rstn_data["f2695"].append(line[5])
-                rstn_data["f4995"].append(line[6])
-                rstn_data["f8800"].append(line[7])
-                rstn_data["f15400"].append(line[8])
+                rstn_data["f245"].append(self.__cast_to_int16(
+                    line[18:18+interval]))
+                rstn_data["f410"].append(self.__cast_to_int16(
+                    line[18+interval:18+interval*2]))
+                rstn_data["f610"].append(self.__cast_to_int16(
+                    line[18+interval*2:18+interval*3]))
+                rstn_data["f1415"].append(self.__cast_to_int16(
+                    line[18+interval*3:18+interval*4]))
+                rstn_data["f2695"].append(self.__cast_to_int16(
+                    line[18+interval*4:18+interval*5]))
+                rstn_data["f4995"].append(self.__cast_to_int16(
+                    line[18+interval*5:18+interval*6]))
+                rstn_data["f8800"].append(self.__cast_to_int16(
+                    line[18+interval*6:18+interval*7]))
+                rstn_data["f15400"].append(self.__cast_to_int16(
+                    line[18+interval*7:]))
 
         return rstn_data
 
@@ -395,38 +459,47 @@ class GetRSTN(object):
         pandas.DataFrame
             The dataframe with the data.
 
+        Raises
+        ------
+        FileNotFoundError
+            If the filename is not set, therefore, it can't be found.
+
         """
 
         try:
             data = self.read_file()
-        except NoneFilename:
-            raise Exception("File not found")
+        except FilenameNotSetError:
+            raise FileNotFoundError(
+                "The file: " + self._filename + "was not found.")
 
         columns = ["f245", "f410", "f610", "f1415",
                    "f2695", "f4995", "f8800", "f15400"]
-        self.rstn_data = pd.DataFrame(data, columns=columns,
+        self.dataframe = pd.DataFrame(data, columns=columns,
                                       index=data["time"])
 
-        self.rstn_data = self.rstn_data.astype(np.int16)
-        self.rstn_data.index = self.rstn_data.index.tz_localize("UTC")
-        return self.rstn_data
+        self.dataframe.index = self.dataframe.index.tz_localize("UTC")
+
+        return self.dataframe
 
     def plot(self):
         """Plots the file's data.
 
         Returns
         -------
-        matplotlib.Axes
+        axis: matplotlib.Axes
             Graphic's axes object for manipulation.
+
+        Raises
+        ------
+        DataFrameNotCreatedError:
+            If the dataframe was not created before this method is called.
 
         """
 
-        if self.rstn_data is None:
-            if self.create_dataframe() is False:
-                print("Can't plot data")
-                return False
+        if self.dataframe is None:
+            raise DataFrameNotCreatedError(
+                "Can't plot data. Dataframe was not created.")
 
-        ax = self.rstn_data.plot()
-        ax.xaxis.set_major_formatter(DateFormatter("%H:%M"))
+        axis = self.dataframe.plot()
 
-        return ax
+        return axis

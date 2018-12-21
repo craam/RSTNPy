@@ -20,6 +20,10 @@ class FileNotFoundOnServer(Exception):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-class NoneFilename(Exception):
+class FilenameNotSetError(Exception):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+class DataFrameNotCreatedError(Exception):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

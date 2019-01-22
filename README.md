@@ -32,19 +32,6 @@ ax = rstn.plot()
 plt.plot()
 ```
 
-## Building documentation
-
-```bash
-cd docs/
-make html
-```
-
-or
-
-```bash
-cd docs/
-sphinx-build -b html source/ build/
-```
-
 ## Compatibility
+
 The library was tested with Python 3.6, and Python 2.7.14. It'll probably work with other python3 versions, but i don't know if it'll work with Python 2.6 or older versions.

@@ -123,4 +123,4 @@ venv.bak/
 
 # Any jupyter notebook
 *.ipynb
-grab.py
+test_*

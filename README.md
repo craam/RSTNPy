@@ -15,16 +15,17 @@ import matplotlib.pyplot as plt
 
 from getrstn import GetRSTN
 
-day = 9
-month = 4
-year = 2002
+day = 16
+month = 10
+year = 2014
 path_to_files = "data/"
 station = "San vito"
 
 rstn = GetRSTN(day, month, year, path_to_files, station)
 
-# Downloads and decompress the file.
-rstn.get_file_content()
+# Downloads, decompress the file and generate a dataframe.
+rstn.download_file()
+filename = rstn.decompress_file()
 df = rstn.create_dataframe()
 
 # Plots the data.

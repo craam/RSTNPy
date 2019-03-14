@@ -23,6 +23,11 @@ from .exceptions import (
 class GetRSTN(object):
     """Download rstn 1 second data from noaa's site.
 
+    Base url to ngdc data is: https://www.ngdc.noaa.gov/
+
+    Rstn 1 second data is under Solar-Terrestrial Physics(STP):
+    stp/space-weather/solar-data/solar-features/solar-radio/rstn-1-second/
+
     Attributes
     ----------
     day: int or str

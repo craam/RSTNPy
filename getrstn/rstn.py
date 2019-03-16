@@ -144,8 +144,8 @@ class GetRSTN(object):
 
         return station.lower().replace(' ', '-')
 
-    def __cast_to_int16(self, number):
-        """Casts a number to the numpy int16 type.
+    def __cast_to_int64(self, number):
+        """Casts a number to the numpy int64 type.
 
         Parameters
         ----------
@@ -154,13 +154,13 @@ class GetRSTN(object):
 
         Returns
         -------
-        number: np.int16 or np.nan
-            The number as a int16 or NaN.
+        number: np.int64 or np.nan
+            The number as a int64 or NaN.
 
         """
 
         try:
-            number = np.int16(number)
+            number = np.int64(number)
         except ValueError:
             number = np.nan
 
@@ -419,6 +419,9 @@ class GetRSTN(object):
         else:
             interval = 6
 
+        if self._station.lower() == "san vito":
+            interval = 8
+
         with open(os.path.join(self.path, self._filename)) as _file:
             for line in _file.readlines():
                 year = int(line[4:8])
@@ -431,21 +434,21 @@ class GetRSTN(object):
                 date = datetime(year, month, day, hour, minute, second)
 
                 rstn_data["time"].append(date)
-                rstn_data["f245"].append(self.__cast_to_int16(
+                rstn_data["f245"].append(self.__cast_to_int64(
                     line[18:18+interval]))
-                rstn_data["f410"].append(self.__cast_to_int16(
+                rstn_data["f410"].append(self.__cast_to_int64(
                     line[18+interval:18+interval*2]))
-                rstn_data["f610"].append(self.__cast_to_int16(
+                rstn_data["f610"].append(self.__cast_to_int64(
                     line[18+interval*2:18+interval*3]))
-                rstn_data["f1415"].append(self.__cast_to_int16(
+                rstn_data["f1415"].append(self.__cast_to_int64(
                     line[18+interval*3:18+interval*4]))
-                rstn_data["f2695"].append(self.__cast_to_int16(
+                rstn_data["f2695"].append(self.__cast_to_int64(
                     line[18+interval*4:18+interval*5]))
-                rstn_data["f4995"].append(self.__cast_to_int16(
+                rstn_data["f4995"].append(self.__cast_to_int64(
                     line[18+interval*5:18+interval*6]))
-                rstn_data["f8800"].append(self.__cast_to_int16(
+                rstn_data["f8800"].append(self.__cast_to_int64(
                     line[18+interval*6:18+interval*7]))
-                rstn_data["f15400"].append(self.__cast_to_int16(
+                rstn_data["f15400"].append(self.__cast_to_int64(
                     line[18+interval*7:]))
 
         return rstn_data

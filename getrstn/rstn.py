@@ -347,13 +347,13 @@ class GetRSTN(object):
             filename = wget.download(url)
             os.rename(filename, os.path.join(self.path, filename))
         except HTTPError:
+            url = self.__set_url(upper=False)
             try:
-                url = self.__set_url(upper=False)
                 filename = wget.download(url)
                 os.rename(filename, os.path.join(self.path, filename))
             except HTTPError:
                 raise FileNotFoundOnServer(
-                    "The file on: "+ url + " was not found on server.")
+                    "The file on: " + url + " was not found on server.")
 
         self._filename = filename
         return True
@@ -406,21 +406,14 @@ class GetRSTN(object):
 
         if self._filename is None:
             raise FilenameNotSetError(
-                "The file "+ self._filename + " has an invalid name.")
+                "The file " + str(self._filename) + " has an invalid name.")
 
         rstn_data = {"time": [], "f245": [], "f410": [], "f610": [],
                      "f1415": [], "f2695": [], "f4995": [], "f8800": [],
                      "f15400": []
                      }
 
-        # Sets the interval for each frequency column.
-        if int(self.year) >= 2008:
-            interval = 7
-        else:
-            interval = 6
-
-        if self._station.lower() == "san vito":
-            interval = 8
+        interval = self.__set_column_interval()
 
         with open(os.path.join(self.path, self._filename)) as _file:
             for line in _file.readlines():
@@ -452,6 +445,28 @@ class GetRSTN(object):
                     line[18+interval*7:]))
 
         return rstn_data
+
+    def __set_column_interval(self):
+        """Sets the interval for each frequency column.
+
+        Returns
+        -------
+        interval: int
+            The column interval size.
+
+        """
+        if self._station.lower() == "san vito":
+            if int(self.year) >= 2015:
+                return 8
+            elif int(self.year) >= 2008:
+                return 7
+            else:
+                return 6
+
+        if int(self.year) >= 2008:
+            return 7
+        else:
+            return 6
 
     def create_dataframe(self):
         """Creates the dataframe with the file's data.

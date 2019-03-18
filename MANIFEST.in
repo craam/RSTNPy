@@ -1,4 +1,4 @@
 include README.md
 include requirements.txt
 include LICENSE
-inclde INSTALL.md
+include INSTALL.md

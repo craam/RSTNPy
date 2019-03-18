@@ -124,3 +124,4 @@ venv.bak/
 # Any jupyter notebook
 *.ipynb
 test_*
+.idea/

@@ -455,15 +455,10 @@ class GetRSTN(object):
             The column interval size.
 
         """
-        if self._station.lower() == "san vito":
-            if int(self.year) >= 2015:
-                return 8
-            elif int(self.year) >= 2008:
-                return 7
-            else:
-                return 6
 
-        if int(self.year) >= 2008:
+        if int(self.year) >= 2015:
+            return 8
+        elif int(self.year) >= 2008:
             return 7
         else:
             return 6

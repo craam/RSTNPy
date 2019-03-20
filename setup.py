@@ -10,7 +10,7 @@ setup(
     author_email="ednetoali@gmail.com",
     description="Downloads rstn-1-second data",
     long_description=long_description,
-    url="https://github.com/3ldr0n/getrstn",
+    url="https://github.com/craam/getrstn",
     packages=['getrstn'],
     include_package_data=True,
     install_requires=[

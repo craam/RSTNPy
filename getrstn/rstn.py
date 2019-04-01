@@ -1,13 +1,12 @@
 from __future__ import print_function
 
-import os
 import gzip
+import os
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
-import wget
-
-from datetime import datetime
+import requests
 
 try:
     from urllib.error import HTTPError
@@ -325,6 +324,35 @@ class GetRSTN(object):
 
         return url
 
+    def __download(self, upper):
+        """Downloads the gzipped file.
+
+        Returns
+        -------
+        filename: str
+            the saved file's name.
+
+        Raises
+        ------
+        HttpError
+            Raised if the status code of the response is not 200.
+
+        """
+        url = self.__set_url(upper)
+        filename = self.__set_filename(upper)
+
+        if upper:
+            filename += self.__set_file_extension_upper()
+        else:
+            filename += self.__set_file_extension_lower()
+
+        r = requests.get(url, allow_redirects=False)
+        if r.status_code != 200:
+            raise HTTPError(url, r.status_code, "HTTP error", r.headers, "")
+
+        open(filename, 'wb').write(r.content)
+        return filename
+
     def download_file(self):
         """Downloads the file via https.
 
@@ -343,15 +371,14 @@ class GetRSTN(object):
         # Tries to download with the file extension in upper case.
         # Then tries to download with the file extension in lower case.
         try:
-            url = self.__set_url(upper=True)
-            filename = wget.download(url)
+            filename = self.__download(upper=True)
             os.rename(filename, os.path.join(self.path, filename))
         except HTTPError:
-            url = self.__set_url(upper=False)
             try:
-                filename = wget.download(url)
+                filename = self.__download(upper=False)
                 os.rename(filename, os.path.join(self.path, filename))
             except HTTPError:
+                url = self.__set_url(upper=False)
                 raise FileNotFoundOnServer(
                     "The file on: " + url + " was not found on server.")
 

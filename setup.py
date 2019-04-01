@@ -5,16 +5,16 @@ with open("README.md", "r") as readme:
 
 setup(
     name="getrstn",
-    version="0.6.1",
-    author="Edison Neto and Douglas Silva",
+    version="0.6.2",
+    author="Edison Neto",
     author_email="ednetoali@gmail.com",
     description="Downloads rstn-1-second data",
     long_description=long_description,
-    url="https://github.com/3ldr0n/getrstn",
+    url="https://github.com/craam/getrstn",
     packages=['getrstn'],
     include_package_data=True,
     install_requires=[
-        'wget>=3.2',
+        'requests>=2.20',
         'numpy>=1.13',
         'pandas>=0.21'
         'matplotlib>=2.2.2'

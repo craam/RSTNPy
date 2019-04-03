@@ -1,16 +1,16 @@
-# GetRSTN
+* GetRSTN
 
 Download RSTN 1 second data from NOAA's site. Working for data after 2000.
 
-## Installation
+** Installation
 
-```bash
+#+BEGIN_SRC bash
 pip install getrstn
-```
+#+END_SRC
 
-## How to use it
+** How to use it
 
-```python
+#+BEGIN_SRC python
 import matplotlib.pyplot as plt
 
 from getrstn import GetRSTN
@@ -31,8 +31,8 @@ df = rstn.create_dataframe()
 # Plots the data.
 ax = rstn.plot()
 plt.plot()
-```
+#+END_SRC
 
-## Compatibility
+** Compatibility
 
 The library was tested with Python 3, and Python 2.7.

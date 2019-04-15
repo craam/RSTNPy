@@ -2,11 +2,12 @@ from __future__ import print_function
 
 import gzip
 import os
+
 from datetime import datetime
 
-import numpy as np
-import pandas as pd
-import requests
+from numpy import nan, int64
+from pandas import DataFrame
+from requests import get
 
 try:
     from urllib.error import HTTPError
@@ -38,13 +39,13 @@ class GetRSTN(object):
     path: str
         Where the files are/will be stored.
     station: str
-        Station (default: Sagamore Hill).
+        Station.
     dataframe: pandas.DataFrame
         The dataframe containing the data. (default: None)
 
     """
 
-    def __init__(self, day, month, year, path, station='Sagamore Hill'):
+    def __init__(self, day, month, year, path, station):
         self.day = self.__format_day(day)
         self.month = self.__format_month(month)
         self.year = str(year)
@@ -54,8 +55,8 @@ class GetRSTN(object):
             self.path += "/"
         if not os.path.exists(self.path):
             os.mkdir(self.path)
-        self._station = station
-        self._filename = None
+        self.__station = station
+        self.__filename = None
         self.dataframe = None
         self.__station_extensions = {
             "sagamore hill": {
@@ -72,9 +73,35 @@ class GetRSTN(object):
             }
         }
         self.frequencies_columns = [
-                "f245", "f410", "f610", "f1415",
-                "f2695", "f4995", "f8800", "f15400"
+            "f245", "f410", "f610", "f1415",
+            "f2695", "f4995", "f8800", "f15400"
         ]
+
+    @property
+    def filename(self):
+        """Gets the filename.
+
+        Returns
+        -------
+        str
+            Filename
+
+        """
+
+        return self.__filename
+
+    @property
+    def station(self):
+        """Gets the station name.
+
+        Returns
+        -------
+        str
+            Station name.
+
+        """
+
+        return self.__station
 
     def __format_day(self, day):
         """Formats the day as a string in the format dd.
@@ -118,19 +145,6 @@ class GetRSTN(object):
 
         return month
 
-    @property
-    def get_filename(self):
-        """Gets the filename.
-
-        Returns
-        -------
-        str
-            Filename
-
-        """
-
-        return self._filename
-
     def __format_station_for_url(self, station):
         """Formats the station name as it is in NOAA's site for the url.
 
@@ -153,15 +167,15 @@ class GetRSTN(object):
 
         Returns
         -------
-        number: np.int64 or np.nan
+        number: numpyp.int64 or numpy.nan
             The number as a int64 or NaN.
 
         """
 
         try:
-            number = np.int64(number)
+            number = int64(number)
         except ValueError:
-            number = np.nan
+            number = nan
 
         return number
 
@@ -218,7 +232,8 @@ class GetRSTN(object):
 
         """
 
-        extension = "." + self.__station_extensions[self._station.lower()]["upper"]
+        extension = "." + \
+            self.__station_extensions[self.__station.lower()]["upper"]
 
         if file_gzip:
             return extension + ".gz"
@@ -241,7 +256,8 @@ class GetRSTN(object):
 
         """
 
-        extension = "." + self.__station_extensions[self._station.lower()]["lower"]
+        extension = "." + \
+            self.__station_extensions[self.__station.lower()]["lower"]
 
         if file_gzip:
             return extension + ".gz"
@@ -266,7 +282,7 @@ class GetRSTN(object):
 
         for _file in files:
             if _file in (filename_upper, filename_lower):
-                self._filename = _file
+                self.__filename = _file
                 return True
 
         return False
@@ -308,7 +324,7 @@ class GetRSTN(object):
 
         """
 
-        station_name = self.__format_station_for_url(self._station)
+        station_name = self.__format_station_for_url(self.__station)
 
         if upper:
             filename = self.__set_filename(True)
@@ -338,6 +354,7 @@ class GetRSTN(object):
             Raised if the status code of the response is not 200.
 
         """
+
         url = self.__set_url(upper)
         filename = self.__set_filename(upper)
 
@@ -346,7 +363,7 @@ class GetRSTN(object):
         else:
             filename += self.__set_file_extension_lower()
 
-        r = requests.get(url, allow_redirects=False)
+        r = get(url, allow_redirects=False)
         if r.status_code != 200:
             raise HTTPError(url, r.status_code, "HTTP error", r.headers, "")
 
@@ -382,7 +399,7 @@ class GetRSTN(object):
                 raise FileNotFoundOnServer(
                     "The file on: " + url + " was not found on server.")
 
-        self._filename = filename
+        self.__filename = filename
         return True
 
     def decompress_file(self):
@@ -398,16 +415,17 @@ class GetRSTN(object):
 
         """
 
-        with gzip.open(os.path.join(self.path, self._filename), 'rb') as gzipped_file:
+        path_to_gzip = os.path.join(self.path, self.__filename)
+        with gzip.open(path_to_gzip, 'rb') as gzipped_file:
             file_content = gzipped_file.read()
             # Separates the .gz extension from the filename.
-            final_name = self._filename.split('.gz')[0]
+            final_name = self.__filename.split('.gz')[0]
             with open(os.path.join(self.path, final_name), 'wb') as final_file:
                 # Saves the content to a new file.
                 final_file.write(file_content)
 
-        os.remove(os.path.join(self.path, self._filename))
-        self._filename = final_name
+        os.remove(os.path.join(self.path, self.__filename))
+        self.__filename = final_name
 
         return final_name
 
@@ -431,9 +449,9 @@ class GetRSTN(object):
 
         """
 
-        if self._filename is None:
+        if self.__filename is None:
             raise FilenameNotSetError(
-                "The file " + str(self._filename) + " has an invalid name.")
+                "The file " + str(self.__filename) + " has an invalid name.")
 
         rstn_data = {"time": [], "f245": [], "f410": [], "f610": [],
                      "f1415": [], "f2695": [], "f4995": [], "f8800": [],
@@ -442,7 +460,7 @@ class GetRSTN(object):
 
         interval = self.__set_column_interval()
 
-        with open(os.path.join(self.path, self._filename)) as _file:
+        with open(os.path.join(self.path, self.__filename)) as _file:
             for line in _file.readlines():
                 year = int(line[4:8])
                 month = int(line[8:10])
@@ -509,10 +527,10 @@ class GetRSTN(object):
             data = self.read_file()
         except FilenameNotSetError:
             raise FileNotFoundError(
-                "The file " + self._filename + " was not found.")
+                "The file " + self.__filename + " was not found.")
 
-        self.dataframe = pd.DataFrame(data, columns=self.frequencies_columns,
-                                      index=data["time"])
+        self.dataframe = DataFrame(data, columns=self.frequencies_columns,
+                                   index=data["time"])
 
         self.dataframe.index = self.dataframe.index.tz_localize("UTC")
 

@@ -1,6 +1,6 @@
 from setuptools import setup
 
-with open("README.md", "r") as readme:
+with open("README.org", "r") as readme:
     long_description = readme.read()
 
 setup(

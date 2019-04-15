@@ -23,13 +23,18 @@ station = "San vito"
 
 rstn = GetRSTN(day, month, year, path_to_files, station)
 
-# Downloads, decompress the file and generate a dataframe.
+# Search and download the file.
 rstn.download_file()
+
+# Decompress the gzipped file into a text file.
 filename = rstn.decompress_file()
+
+# Generate a dataframe from the data.
 df = rstn.create_dataframe()
 
-# Plots the data.
+# Plot the data.
 ax = rstn.plot()
+
 plt.plot()
 #+END_SRC
 

@@ -13,7 +13,7 @@ pip install getrstn
 #+BEGIN_SRC python
 import matplotlib.pyplot as plt
 
-from getrstn import GetRSTN
+from getrstn import RSTN
 
 day = 16
 month = 10
@@ -21,10 +21,10 @@ year = 2014
 path_to_files = "data/"
 station = "San vito"
 
-rstn = GetRSTN(day, month, year, path_to_files, station)
+rstn = RSTN(day, month, year, path_to_files, station)
 
 # Search and download the file.
-rstn.download_file()
+rstn.downloader.download_file()
 
 # Decompress the gzipped file into a text file.
 filename = rstn.decompress_file()

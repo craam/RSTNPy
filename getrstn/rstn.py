@@ -132,13 +132,26 @@ class RSTN(object):
         return month
 
     def __validade_path(self, path):
+        """Validates the existence of a given path.
+
+        Parameters
+        ----------
+        path: str
+            The original path.
+
+        Returns
+        -------
+        validated_path: str
+            The validated path.
+
+        """
         if path[-1] != "/":
-            path += "/"
+            validated_path = path + "/"
 
         if not os.path.exists(path):
             os.mkdir(path)
 
-        return path
+        return validated_path
 
     def __cast_to_int64(self, number):
         """Casts a number to the numpy int64 type.

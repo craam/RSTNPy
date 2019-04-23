@@ -28,8 +28,12 @@ class RSTNDownloader(object):
         Event's year.
     path: str
         Where the files are/will be stored.
-    station: str
+    __station: str
         Station.
+    __filename: str
+        The file name.
+    __base_uri: str
+        THe base uri to noaa's.
 
     """
 
@@ -40,6 +44,7 @@ class RSTNDownloader(object):
         self.path = str(path)
         self.__station = station
         self.__filename = None
+        self.__base_uri = "https://www.ngdc.noaa.gov"
 
     def __change_month_upper(self):
         """Sets the month for the filename in upper case.
@@ -184,7 +189,7 @@ class RSTNDownloader(object):
             filename = self.__set_filename(False)
             file_extension = self.__set_file_extension_lower()
 
-        url = "https://www.ngdc.noaa.gov/stp/space-weather/solar-data/"
+        url = self.__base_uri + "/stp/space-weather/solar-data/"
         url += "solar-features/solar-radio/rstn-1-second/"
         url += station_name + '/' + self.year + '/' + self.month + '/'
         url += filename + file_extension

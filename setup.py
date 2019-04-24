@@ -5,7 +5,7 @@ with open("README.org", "r") as readme:
 
 setup(
     name="getrstn",
-    version="0.6.2",
+    version="0.7",
     author="Edison Neto",
     author_email="ednetoali@gmail.com",
     description="Downloads rstn-1-second data",

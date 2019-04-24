@@ -1,5 +1,7 @@
 import os.path
 
+from pathlib import Path
+
 from requests import get
 
 try:
@@ -31,20 +33,34 @@ class RSTNDownloader(object):
     __station: str
         Station.
     __filename: str
-        The file name.
+        The filename.
     __base_uri: str
-        THe base uri to noaa's.
+        The base uri to noaa's.
 
     """
 
     def __init__(self, day, month, year, path, station):
-        self.day = self.day
-        self.month = self.month
+        self.day = day
+        self.month = month
         self.year = str(year)
-        self.path = str(path)
+        self.path = path
         self.__station = station
         self.__filename = None
         self.__base_uri = "https://www.ngdc.noaa.gov"
+        self.__station_extensions = {
+            "sagamore hill": {
+                "lower": "k7o", "upper": "K7O"
+            },
+            "san vito": {
+                "lower": "lis", "upper": "LIS"
+            },
+            "palehua": {
+                "lower": "phf", "upper": "PHF"
+            },
+            "learmonth": {
+                "lower": "apl", "upper": "APL"
+            }
+        }
 
     def __change_month_upper(self):
         """Sets the month for the filename in upper case.
@@ -132,7 +148,7 @@ class RSTNDownloader(object):
         return extension
 
     def __set_filename(self, upper):
-        """Creates the file name.
+        """Creates the filename.
 
         Parameters
         ----------
@@ -152,6 +168,29 @@ class RSTNDownloader(object):
             filename = self.day + self.__change_month_lower() + self.year[2:]
 
         return filename
+
+    def file_exists(self):
+        """Checks if the file exists.
+
+        Returns
+        -------
+        bool
+            If the file exists.
+
+        """
+
+        filename_upper = self.__set_filename(
+            True) + self.__set_file_extension_upper(False)
+        filename_lower = self.__set_filename(
+            False) + self.__set_file_extension_lower(False)
+
+        if self.path.joinpath(filename_upper):
+            return True
+
+        if self.path.joinpath(filename_lower):
+            return True
+
+        return False
 
     def __format_station_for_url(self, station):
         """Formats the station name as it is in NOAA's site for the url.
@@ -202,7 +241,7 @@ class RSTNDownloader(object):
         Returns
         -------
         filename: str
-            the saved file's name.
+            the saved filename.
 
         Raises
         ------
@@ -255,5 +294,4 @@ class RSTNDownloader(object):
                 raise FileNotFoundOnServer(
                     "The file on: " + url + " was not found on server.")
 
-        self.__filename = filename
-        return True
+        return filename

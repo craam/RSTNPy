@@ -4,6 +4,7 @@ import gzip
 import os
 
 from datetime import datetime
+from pathlib import Path
 
 from numpy import nan, int64
 from pandas import DataFrame
@@ -38,26 +39,13 @@ class RSTN(object):
         self.month = self.__format_month(month)
         self.year = str(year)
 
-        self.path = self.__validade_path(path)
+        self.path = self.__validate_path(path)
         self.__station = station
         self.__filename = None
 
-        self.downloader = RSTNDownloader(day, month, year, path, station)
+        self.downloader = RSTNDownloader(self.day, self.month, self.year,
+                                         self.path, station)
         self.dataframe = None
-        self.__station_extensions = {
-            "sagamore hill": {
-                "lower": "k7o", "upper": "K7O"
-            },
-            "san vito": {
-                "lower": "lis", "upper": "LIS"
-            },
-            "palehua": {
-                "lower": "phf", "upper": "PHF"
-            },
-            "learmonth": {
-                "lower": "apl", "upper": "APL"
-            }
-        }
         self.frequencies_columns = [
             "f245", "f410", "f610", "f1415",
             "f2695", "f4995", "f8800", "f15400"
@@ -131,7 +119,7 @@ class RSTN(object):
 
         return month
 
-    def __validade_path(self, path):
+    def __validate_path(self, path):
         """Validates the existence of a given path.
 
         Parameters
@@ -141,15 +129,14 @@ class RSTN(object):
 
         Returns
         -------
-        validated_path: str
+        validated_path: Path
             The validated path.
 
         """
-        if path[-1] != "/":
-            validated_path = path + "/"
+        validated_path = Path(path)
 
-        if not os.path.exists(path):
-            os.mkdir(path)
+        if not validated_path.exists():
+            validated_path.mkdir()
 
         return validated_path
 
@@ -175,29 +162,6 @@ class RSTN(object):
 
         return number
 
-    def file_exists(self):
-        """Checks if the file exists.
-
-        Returns
-        -------
-        bool
-            If the file exists.
-
-        """
-
-        files = os.listdir(self.path)
-        filename_upper = self.__set_filename(
-            True) + self.__set_file_extension_upper(False)
-        filename_lower = self.__set_filename(
-            False) + self.__set_file_extension_lower(False)
-
-        for _file in files:
-            if _file in (filename_upper, filename_lower):
-                self.__filename = _file
-                return True
-
-        return False
-
     def decompress_file(self):
         """Gets gzipped file content.
 
@@ -208,20 +172,20 @@ class RSTN(object):
         Returns
         -------
         str
-            File's final name.
+            Final filename.
 
         """
 
-        path_to_gzip = os.path.join(self.path, self.__filename)
+        path_to_gzip = self.path.joinpath(self.__filename)
+
         with gzip.open(path_to_gzip, 'rb') as gzipped_file:
             file_content = gzipped_file.read()
-            # Separates the .gz extension from the filename.
             final_name = self.__filename.split('.gz')[0]
             with open(os.path.join(self.path, final_name), 'wb') as final_file:
-                # Saves the content to a new file.
                 final_file.write(file_content)
 
-        os.remove(os.path.join(self.path, self.__filename))
+        os.remove(self.path.joinpath(self.__filename))
+
         self.__filename = final_name
 
         return final_name

@@ -181,10 +181,10 @@ class RSTN(object):
         with gzip.open(path_to_gzip, 'rb') as gzipped_file:
             file_content = gzipped_file.read()
             final_name = self.__filename.split('.gz')[0]
-            with open(os.path.join(self.path, final_name), 'wb') as final_file:
+            with Path(self.path.joinpath(final_name)).open("wb") as final_file:
                 final_file.write(file_content)
 
-        os.remove(self.path.joinpath(self.__filename))
+        os.remove(Path(self.path.joinpath(self.__filename)))
 
         self.__filename = final_name
 
@@ -240,8 +240,8 @@ class RSTN(object):
 
         interval = self.__set_column_interval()
 
-        with open(os.path.join(self.path, self.__filename)) as _file:
-            for line in _file.readlines():
+        with Path(self.path.joinpath(self.__filename)).open("r") as fp:
+            for line in fp.readlines():
                 year = int(line[4:8])
                 month = int(line[8:10])
                 day = int(line[10:12])

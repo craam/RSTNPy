@@ -17,5 +17,5 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from .rstn import RSTN
 
-name = "getrstn"
+name = "RSTNPy"
 __version__ = "0.7"

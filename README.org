@@ -1,11 +1,11 @@
-* GetRSTN
+* RSTNPy
 
 Download RSTN 1 second data from NOAA's site. Working for data after 2000.
 
 ** Installation
 
 #+BEGIN_SRC bash
-pip install getrstn
+pip install rstnpy
 #+END_SRC
 
 ** How to use it
@@ -13,7 +13,7 @@ pip install getrstn
 #+BEGIN_SRC python
 import matplotlib.pyplot as plt
 
-from getrstn import RSTN
+from rstnpy import RSTN
 
 day = 16
 month = 10
@@ -24,10 +24,10 @@ station = "San vito"
 rstn = RSTN(day, month, year, path_to_files, station)
 
 # Search and download the file.
-rstn.downloader.download_file()
+filename = rstn.downloader.download_file()
 
 # Decompress the gzipped file into a text file.
-filename = rstn.decompress_file()
+filename = rstn.decompress_file(filename)
 
 # Generate a dataframe from the data.
 df = rstn.create_dataframe()

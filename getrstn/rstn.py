@@ -47,8 +47,8 @@ class RSTN(object):
                                          self.path, station)
         self.dataframe = None
         self.frequencies_columns = [
-            "f245", "f410", "f610", "f1415",
-            "f2695", "f4995", "f8800", "f15400"
+            "245", "410", "610", "1415",
+            "2695", "4995", "8800", "15400"
         ]
 
     @property
@@ -233,9 +233,9 @@ class RSTN(object):
             raise FilenameNotSetError(
                 "The file " + str(self.__filename) + " has an invalid name.")
 
-        rstn_data = {"time": [], "f245": [], "f410": [], "f610": [],
-                     "f1415": [], "f2695": [], "f4995": [], "f8800": [],
-                     "f15400": []
+        rstn_data = {"time": [], "245": [], "410": [], "610": [],
+                     "f1415": [], "2695": [], "4995": [], "8800": [],
+                     "15400": []
                      }
 
         interval = self.__set_column_interval()
@@ -252,21 +252,21 @@ class RSTN(object):
                 date = datetime(year, month, day, hour, minute, second)
 
                 rstn_data["time"].append(date)
-                rstn_data["f245"].append(self.__cast_to_int64(
+                rstn_data["245"].append(self.__cast_to_int64(
                     line[18:18+interval]))
-                rstn_data["f410"].append(self.__cast_to_int64(
+                rstn_data["410"].append(self.__cast_to_int64(
                     line[18+interval:18+interval*2]))
-                rstn_data["f610"].append(self.__cast_to_int64(
+                rstn_data["610"].append(self.__cast_to_int64(
                     line[18+interval*2:18+interval*3]))
-                rstn_data["f1415"].append(self.__cast_to_int64(
+                rstn_data["1415"].append(self.__cast_to_int64(
                     line[18+interval*3:18+interval*4]))
-                rstn_data["f2695"].append(self.__cast_to_int64(
+                rstn_data["2695"].append(self.__cast_to_int64(
                     line[18+interval*4:18+interval*5]))
-                rstn_data["f4995"].append(self.__cast_to_int64(
+                rstn_data["4995"].append(self.__cast_to_int64(
                     line[18+interval*5:18+interval*6]))
-                rstn_data["f8800"].append(self.__cast_to_int64(
+                rstn_data["8800"].append(self.__cast_to_int64(
                     line[18+interval*6:18+interval*7]))
-                rstn_data["f15400"].append(self.__cast_to_int64(
+                rstn_data["15400"].append(self.__cast_to_int64(
                     line[18+interval*7:]))
 
         return rstn_data

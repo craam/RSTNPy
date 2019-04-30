@@ -4,14 +4,14 @@ with open("README.org", "r") as readme:
     long_description = readme.read()
 
 setup(
-    name="getrstn",
+    name="rstnpy",
     version="0.7",
     author="Edison Neto",
     author_email="ednetoali@gmail.com",
     description="Downloads rstn-1-second data",
     long_description=long_description,
-    url="https://github.com/craam/getrstn",
-    packages=['getrstn'],
+    url="https://github.com/craam/rstnpy",
+    packages=['rstnpy'],
     include_package_data=True,
     install_requires=[
         'requests>=2.20',
@@ -21,7 +21,6 @@ setup(
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 2.7",
         "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
         "Operating System :: OS Independent",
     ],

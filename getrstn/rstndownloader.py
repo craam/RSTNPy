@@ -184,10 +184,10 @@ class RSTNDownloader(object):
         filename_lower = self.__set_filename(
             False) + self.__set_file_extension_lower(False)
 
-        if self.path.joinpath(filename_upper):
+        if Path(self.path.joinpath(filename_upper)).exists():
             return True
 
-        if self.path.joinpath(filename_lower):
+        if Path(self.path.joinpath(filename_lower)).exists():
             return True
 
         return False
@@ -270,8 +270,8 @@ class RSTNDownloader(object):
 
         Returns
         -------
-        bool
-            True when the file was downloaded.
+        filename: str
+            The downloaded gzipped filename.
 
         Raises
         ------
@@ -284,11 +284,11 @@ class RSTNDownloader(object):
         # Then tries to download with the file extension in lower case.
         try:
             filename = self.__download(upper=True)
-            os.rename(filename, os.path.join(self.path, filename))
+            os.rename(filename, Path(self.path.joinpath(filename)))
         except HTTPError:
             try:
                 filename = self.__download(upper=False)
-                os.rename(filename, os.path.join(self.path, filename))
+                os.rename(filename, Path(self.path.joinpath(filename)))
             except HTTPError:
                 url = self.__set_url(upper=False)
                 raise FileNotFoundOnServer(

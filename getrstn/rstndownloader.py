@@ -1,21 +1,17 @@
 import os.path
 
 from pathlib import Path
+from urllib.error import HTTPError
 
 from requests import get
-
-try:
-    from urllib.error import HTTPError
-except ImportError:
-    from urllib2 import HTTPError
 
 from .exceptions import FileNotFoundOnServer
 
 
-class RSTNDownloader(object):
-    """Download rstn 1 second data from noaa's site.
+class RSTNDownloader:
+    """Download rstn 1 second data from NOAA's site.
 
-    Base url to ngdc data is: https://www.ngdc.noaa.gov/
+    Base url to NGDC data is: https://www.ngdc.noaa.gov/
 
     Rstn 1 second data is under Solar-Terrestrial Physics(STP):
     stp/space-weather/solar-data/solar-features/solar-radio/rstn-1-second/
@@ -32,8 +28,6 @@ class RSTNDownloader(object):
         Where the files are/will be stored.
     __station: str
         Station.
-    __filename: str
-        The filename.
     __base_uri: str
         The base uri to noaa's.
 
@@ -45,7 +39,6 @@ class RSTNDownloader(object):
         self.year = str(year)
         self.path = path
         self.__station = station
-        self.__filename = None
         self.__base_uri = "https://www.ngdc.noaa.gov"
         self.__station_extensions = {
             "sagamore hill": {
@@ -268,6 +261,9 @@ class RSTNDownloader(object):
     def download_file(self):
         """Downloads the file via https.
 
+        Tries to download with the file extension in upper case.
+        Then tries to download with the file extension in lower case.
+
         Returns
         -------
         filename: str
@@ -280,8 +276,6 @@ class RSTNDownloader(object):
 
         """
 
-        # Tries to download with the file extension in upper case.
-        # Then tries to download with the file extension in lower case.
         try:
             filename = self.__download(upper=True)
             os.rename(filename, Path(self.path.joinpath(filename)))

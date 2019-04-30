@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import gzip
 import os
 
@@ -9,21 +7,20 @@ from pathlib import Path
 from numpy import nan, int64
 from pandas import DataFrame
 
+from .exceptions import FilenameNotSetError, DataFrameNotCreatedError
 from .rstndownloader import RSTNDownloader
 
-from .exceptions import FilenameNotSetError, DataFrameNotCreatedError
 
-
-class RSTN(object):
+class RSTN:
     """Read RSTN files.
 
     Attributes
     ----------
-    day: int or str
+    day: int
         Event's day.
-    month: int or str
+    month: int
         Event's month.
-    year: int or str
+    year: int
         Event's year.
     path: str
         Where the files are/will be stored.
@@ -34,7 +31,7 @@ class RSTN(object):
 
     """
 
-    def __init__(self, day, month, year, path, station):
+    def __init__(self, day: int, month: int, year: int, path: str, station: str):
         self.day = self.__format_day(day)
         self.month = self.__format_month(month)
         self.year = str(year)
@@ -77,7 +74,7 @@ class RSTN(object):
 
         return self.__station
 
-    def __format_day(self, day):
+    def __format_day(self, day: int):
         """Formats the day as a string in the format dd.
 
         Parameters
@@ -98,7 +95,7 @@ class RSTN(object):
 
         return day
 
-    def __format_month(self, month):
+    def __format_month(self, month: int):
         """Formats the month as a string in the format mm.
 
         Parameters

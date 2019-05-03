@@ -3,12 +3,158 @@ import os
 
 from datetime import datetime
 from pathlib import Path
+from typing import Union, Dict, List
 
 from numpy import nan, int64
 from pandas import DataFrame
 
 from .exceptions import FilenameNotSetError, DataFrameNotCreatedError
 from .rstndownloader import RSTNDownloader
+
+
+class RSTNFile:
+    def __init__(self, day: str, month: str, year: str, station: str) -> None:
+        self.day = day
+        self.month = month
+        self.year = year
+        self.station = station
+        self.name = self.__set_default_name()
+        self.__station_extensions = {
+            "sagamore hill": {
+                "lower": "k7o", "upper": "K7O"
+            },
+            "san vito": {
+                "lower": "lis", "upper": "LIS"
+            },
+            "palehua": {
+                "lower": "phf", "upper": "PHF"
+            },
+            "learmonth": {
+                "lower": "apl", "upper": "APL"
+            }
+        }
+
+    def __change_month_upper(self) -> str:
+        """Sets the month for the filename in upper case.
+
+        Returns
+        -------
+        str
+            The month in upper case.
+
+        """
+
+        months = [
+            "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+            "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+        ]
+
+        # Returns the corresponding month to download the file.
+        index = int(self.month) - 1
+        return months[index]
+
+    def __change_month_lower(self) -> str:
+        """Sets the month for the filename in lowercase.
+
+        Returns
+        -------
+        str
+            The month in lower case.
+
+        """
+
+        months = [
+            "jan", "feb", "mar", "apr", "may", "jun",
+            "jul", "aug", "sep", "oct", "nov", "dec"
+        ]
+
+        # Returns the corresponding month to download the file.
+        index = int(self.month) - 1
+        return months[index]
+
+    def __set_file_extension_upper(self, file_gzip: bool = True) -> str:
+        """Creates the file extension upper case.
+
+        Parameters
+        ----------
+        file_gzip: bool
+            Sets if the extension will have .gz.
+
+        Returns
+        -------
+        str
+            The file extension.
+
+        """
+
+        extension = "." + \
+            self.__station_extensions[self.station.lower()]["upper"]
+
+        if file_gzip:
+            return extension + ".gz"
+
+        return extension
+
+    def __set_file_extension_lower(self, file_gzip: bool = True) -> str:
+        """Creates the file extension lower case.
+
+
+        Parameters
+        ----------
+        file_gzip: bool
+            Sets if the extension will have .gz.
+
+        Returns
+        -------
+        str
+            The file extension.
+
+        """
+
+        extension = "." + \
+            self.__station_extensions[self.station.lower()]["lower"]
+
+        if file_gzip:
+            return extension + ".gz"
+
+        return extension
+
+    def __set_filename(self, upper: bool) -> str:
+        """Creates the filename.
+
+        Parameters
+        ----------
+        upper: bool
+            Sets if the filename is going to be upper or lower case.
+
+        Returns
+        -------
+        str
+            The filename.
+
+        """
+
+        if upper:
+            filename = self.day + self.__change_month_upper() + self.year[2:]
+        else:
+            filename = self.day + self.__change_month_lower() + self.year[2:]
+
+        return filename
+
+    def __set_default_name(self) -> str:
+        return self.__set_filename(True)
+
+    def __format_station_for_url(self, station: str) -> str:
+        """Formats the station name as it is in NOAA's site for the url.
+
+        Returns
+        -------
+        str
+            The station name as it is in the site url.
+
+        """
+
+        return station.lower().replace(' ', '-')
 
 
 class RSTN:
@@ -31,7 +177,8 @@ class RSTN:
 
     """
 
-    def __init__(self, day: int, month: int, year: int, path: str, station: str):
+    def __init__(self, day: int, month: int, year: int, path: str,
+                 station: str) -> None:
         self.day = self.__format_day(day)
         self.month = self.__format_month(month)
         self.year = str(year)
@@ -49,7 +196,7 @@ class RSTN:
         ]
 
     @property
-    def filename(self):
+    def filename(self) -> Union[str, None]:
         """Gets the filename.
 
         Returns
@@ -62,7 +209,7 @@ class RSTN:
         return self.__filename
 
     @property
-    def station(self):
+    def station(self) -> str:
         """Gets the station name.
 
         Returns
@@ -74,12 +221,12 @@ class RSTN:
 
         return self.__station
 
-    def __format_day(self, day: int):
+    def __format_day(self, day: int) -> str:
         """Formats the day as a string in the format dd.
 
         Parameters
         ----------
-        day: str or int
+        day: int
             The day to be formatted.
 
         Returns
@@ -89,18 +236,18 @@ class RSTN:
 
         """
 
-        day = str(day)
-        if len(day) == 1:
-            day = '0' + day
+        formatted_day = str(day)
+        if len(formatted_day) == 1:
+            formatted_day = '0' + formatted_day
 
-        return day
+        return formatted_day
 
-    def __format_month(self, month: int):
+    def __format_month(self, month: int) -> str:
         """Formats the month as a string in the format mm.
 
         Parameters
         ----------
-        month: str or int
+        month: int
             The month to be formatted.
 
         Returns
@@ -110,13 +257,13 @@ class RSTN:
 
         """
 
-        month = str(month)
-        if len(month) == 1:
-            month = '0' + month
+        formatted_month = str(month)
+        if len(formatted_month) == 1:
+            formatted_month = '0' + formatted_month
 
-        return month
+        return formatted_month
 
-    def __validate_path(self, path):
+    def __validate_path(self, path: str) -> Path:
         """Validates the existence of a given path.
 
         Parameters
@@ -137,7 +284,7 @@ class RSTN:
 
         return validated_path
 
-    def __cast_to_int64(self, number):
+    def __cast_to_int64(self, number) -> Union[int64, nan]:
         """Casts a number to the numpy int64 type.
 
         Parameters
@@ -159,7 +306,7 @@ class RSTN:
 
         return number
 
-    def decompress_file(self):
+    def decompress_file(self) -> str:
         """Gets gzipped file content.
 
         The method doesn't actually decompress the file. In reallity it reads
@@ -173,21 +320,22 @@ class RSTN:
 
         """
 
-        path_to_gzip = self.path.joinpath(self.__filename)
+        filename_gzip = str(self.__filename)
+        path_to_gzip = self.path.joinpath(filename_gzip)
 
         with gzip.open(path_to_gzip, 'rb') as gzipped_file:
             file_content = gzipped_file.read()
-            final_name = self.__filename.split('.gz')[0]
+            final_name = filename_gzip.split('.gz')[0]
             with Path(self.path.joinpath(final_name)).open("wb") as final_file:
                 final_file.write(file_content)
 
-        os.remove(Path(self.path.joinpath(self.__filename)))
+        os.remove(Path(self.path.joinpath(filename_gzip)))
 
         self.__filename = final_name
 
         return final_name
 
-    def __set_column_interval(self):
+    def __set_column_interval(self) -> int:
         """Sets the interval for each frequency column.
 
         The column size changes from time to time.
@@ -206,7 +354,7 @@ class RSTN:
         else:
             return 6
 
-    def read_file(self):
+    def read_file(self) -> Dict[str, List[Union[int64, nan]]]:
         """Reads the file data and saves it in columns by frequency.
 
         The first column is 18 digits long, the first 4 indicating the station,
@@ -268,7 +416,7 @@ class RSTN:
 
         return rstn_data
 
-    def create_dataframe(self):
+    def create_dataframe(self) -> DataFrame:
         """Creates the dataframe with the file's data.
 
         Returns
@@ -287,7 +435,7 @@ class RSTN:
             data = self.read_file()
         except FilenameNotSetError:
             raise FileNotFoundError(
-                "The file " + self.__filename + " was not found.")
+                "The file " + str(self.__filename) + " was not found.")
 
         self.dataframe = DataFrame(data, columns=self.frequencies_columns,
                                    index=data["time"])

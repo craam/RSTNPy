@@ -13,6 +13,21 @@ from .rstndownloader import RSTNDownloader
 
 
 class RSTNFile:
+    """
+
+    Attributes
+    ----------
+    day: str
+        Event's day.
+    month: str
+        Event's month.
+    year: str
+        Event's year.
+    __station: str
+        Station.
+
+    """
+
     def __init__(self, day: str, month: str, year: str, station: str) -> None:
         self.day = day
         self.month = month

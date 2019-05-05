@@ -11,6 +11,13 @@ dataframe with the data.
 pip install rstnpy
 #+END_SRC
 
+** Dependencies
+
+- pandas >= 0.21
+- requests >= 2.20
+- numpy >= 1.13
+- matplotlib >= 2.2.2
+
 ** How to use it
 
 #+BEGIN_SRC python

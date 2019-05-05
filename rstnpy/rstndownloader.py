@@ -171,6 +171,6 @@ class RSTNDownloader:
                 url = self.__set_url(upper=False)
                 raise FileNotFoundOnServer(
                     "The file on: " + url + " was not found on server.")
-        finally:
-            Path(filename).rename(self.path.joinpath(filename))
-            return filename
+
+        Path(filename).rename(self.path.joinpath(filename))
+        return filename

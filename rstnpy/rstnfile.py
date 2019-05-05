@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 class RSTNFile:
     """
 
@@ -145,9 +146,17 @@ class RSTNFile:
         return filename
 
     def __set_default_name(self) -> str:
+        """Sets the default filename.
+
+        Returns
+        -------
+        str
+            The filename
+
+        """
         return self.set_filename(True)
 
-    def format_station_for_url(self, station: str) -> str:
+    def format_station_for_url(self) -> str:
         """Formats the station name as it is in NOAA's site for the url.
 
         Returns
@@ -157,10 +166,12 @@ class RSTNFile:
 
         """
 
-        return station.lower().replace(' ', '-')
+        formatted_station = self.station.lower().replace(' ', '-')
+
+        return formatted_station
 
     def is_date_valid(self):
-        """Checks if date is valid
+        """Checks if the date is valid.
 
         Returns
         -------

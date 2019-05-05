@@ -24,7 +24,7 @@ class RSTN:
         Event's month.
     day: int
         Event's day.
-    path: str
+    path: Path
         Where the files are/will be stored.
     station: str
         Station.

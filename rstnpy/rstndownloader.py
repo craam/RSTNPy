@@ -24,12 +24,10 @@ class RSTNDownloader:
         Event's month.
     day: int or str
         Event's day.
-    path: str
+    path: Path
         Where the files are/will be stored.
-    __station: str
-        Station.
     __file: RSTNFile
-        The RSTNFile object.
+        File object used to manipulate the file name properties.
     __base_uri: str
         The base uri to noaa's.
 
@@ -42,22 +40,7 @@ class RSTNDownloader:
         self.day = day
         self.path = path
         self.__file = RSTNFile(year, month, day, station)
-        self.__station = station
         self.__base_uri = "https://www.ngdc.noaa.gov"
-        self.__station_extensions = {
-            "sagamore hill": {
-                "lower": "k7o", "upper": "K7O"
-            },
-            "san vito": {
-                "lower": "lis", "upper": "LIS"
-            },
-            "palehua": {
-                "lower": "phf", "upper": "PHF"
-            },
-            "learmonth": {
-                "lower": "apl", "upper": "APL"
-            }
-        }
 
     def file_exists(self) -> Union[bool, str]:
         """Checks if the file exists.
@@ -97,7 +80,7 @@ class RSTNDownloader:
 
         """
 
-        station_name = self.__file.format_station_for_url(self.__station)
+        station_name = self.__file.format_station_for_url()
 
         if upper:
             filename = self.__file.set_filename(True)

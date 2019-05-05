@@ -40,4 +40,4 @@ plt.plot()
 
 ** Compatibility
 
-The library was tested with Python 3, and Python 2.7.
+The library works with Python 3.5+

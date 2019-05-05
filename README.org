@@ -43,8 +43,8 @@ plt.plot()
 
 ** Known issues
 
-There is a bug when we download the file. The bug itself does not
-affect the functionality as it is an ignored exception. It is a
+There is a bug when we download the file. The bug itself *does not*
+*affect the functionality* as it is an ignored exception. It is a
 apparently a tempfile bug.
 
 Traceback example running with python 3.6.

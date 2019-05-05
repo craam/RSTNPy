@@ -2,7 +2,7 @@ from datetime import datetime
 
 
 class RSTNFile:
-    """
+    """RSTN filename manipulation tools.
 
     Attributes
     ----------
@@ -14,6 +14,10 @@ class RSTNFile:
         Event's year.
     station: str
         Station.
+    name: str
+        Filename
+    __station_extensions: Dict
+        All possible file extensions for each station.
 
     """
 

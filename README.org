@@ -1,6 +1,6 @@
 * RSTNPy
 
-Download RSTN 1 second data from NOAA's site. Working for data after 2000.
+Works with RSTN 1 second data from NOAA's site. Working for data after 2000.
 
 ** Installation
 

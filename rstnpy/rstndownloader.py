@@ -1,11 +1,10 @@
-import os.path
-
 from pathlib import Path
 from urllib.error import HTTPError
 
 from requests import get
 
 from .exceptions import FileNotFoundOnServer
+from .rstnfile import RSTNFile
 
 
 class RSTNDownloader:
@@ -18,26 +17,30 @@ class RSTNDownloader:
 
     Attributes
     ----------
-    day: int or str
-        Event's day.
-    month: int or str
-        Event's month.
     year: int or str
         Event's year.
+    month: int or str
+        Event's month.
+    day: int or str
+        Event's day.
     path: str
         Where the files are/will be stored.
     __station: str
         Station.
+    __file: RSTNFile
+        The RSTNFile object.
     __base_uri: str
         The base uri to noaa's.
 
     """
 
-    def __init__(self, day, month, year, path, station):
-        self.day = day
+    def __init__(self, year: str, month: str, day: str, path: Path,
+                 station: str) -> None:
+        self.year = year
         self.month = month
-        self.year = str(year)
+        self.day = day
         self.path = path
+        self.__file = RSTNFile(year, month, day, station)
         self.__station = station
         self.__base_uri = "https://www.ngdc.noaa.gov"
         self.__station_extensions = {
@@ -55,114 +58,7 @@ class RSTNDownloader:
             }
         }
 
-    def __change_month_upper(self):
-        """Sets the month for the filename in upper case.
-
-        Returns
-        -------
-        str
-            The month in upper case.
-
-        """
-
-        months = [
-            "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
-            "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
-        ]
-
-        # Returns the corresponding month to download the file.
-        index = int(self.month) - 1
-        return months[index]
-
-    def __change_month_lower(self):
-        """Sets the month for the filename in lowercase.
-
-        Returns
-        -------
-        str
-            The month in lower case.
-
-        """
-
-        months = [
-            "jan", "feb", "mar", "apr", "may", "jun",
-            "jul", "aug", "sep", "oct", "nov", "dec"
-        ]
-
-        # Returns the corresponding month to download the file.
-        index = int(self.month) - 1
-        return months[index]
-
-    def __set_file_extension_upper(self, file_gzip=True):
-        """Creates the file extension upper case.
-
-        Parameters
-        ----------
-        file_gzip: bool
-            Sets if the extension will have .gz.
-
-        Returns
-        -------
-        str
-            The file extension.
-
-        """
-
-        extension = "." + \
-            self.__station_extensions[self.__station.lower()]["upper"]
-
-        if file_gzip:
-            return extension + ".gz"
-
-        return extension
-
-    def __set_file_extension_lower(self, file_gzip=True):
-        """Creates the file extension lower case.
-
-
-        Parameters
-        ----------
-        file_gzip: bool
-            Sets if the extension will have .gz.
-
-        Returns
-        -------
-        str
-            The file extension.
-
-        """
-
-        extension = "." + \
-            self.__station_extensions[self.__station.lower()]["lower"]
-
-        if file_gzip:
-            return extension + ".gz"
-
-        return extension
-
-    def __set_filename(self, upper):
-        """Creates the filename.
-
-        Parameters
-        ----------
-        upper: bool
-            Sets if the filename is going to be upper or lower case.
-
-        Returns
-        -------
-        str
-            The filename.
-
-        """
-
-        if upper:
-            filename = self.day + self.__change_month_upper() + self.year[2:]
-        else:
-            filename = self.day + self.__change_month_lower() + self.year[2:]
-
-        return filename
-
-    def file_exists(self):
+    def file_exists(self) -> bool:
         """Checks if the file exists.
 
         Returns
@@ -172,10 +68,10 @@ class RSTNDownloader:
 
         """
 
-        filename_upper = self.__set_filename(
-            True) + self.__set_file_extension_upper(False)
-        filename_lower = self.__set_filename(
-            False) + self.__set_file_extension_lower(False)
+        filename_upper = self.__file.set_filename(
+            True) + self.__file.set_file_extension_upper(False)
+        filename_lower = self.__file.set_filename(
+            False) + self.__file.set_file_extension_lower(False)
 
         if Path(self.path.joinpath(filename_upper)).exists():
             return True
@@ -185,19 +81,7 @@ class RSTNDownloader:
 
         return False
 
-    def __format_station_for_url(self, station):
-        """Formats the station name as it is in NOAA's site for the url.
-
-        Returns
-        -------
-        str
-            The station name as it is in the site url.
-
-        """
-
-        return station.lower().replace(' ', '-')
-
-    def __set_url(self, upper):
+    def __set_url(self, upper: bool) -> str:
         """Creates the url of the file to be downloaded.
 
         Parameters
@@ -212,14 +96,14 @@ class RSTNDownloader:
 
         """
 
-        station_name = self.__format_station_for_url(self.__station)
+        station_name = self.__file.format_station_for_url(self.__station)
 
         if upper:
-            filename = self.__set_filename(True)
-            file_extension = self.__set_file_extension_upper()
+            filename = self.__file.set_filename(True)
+            file_extension = self.__file.set_file_extension_upper()
         else:
-            filename = self.__set_filename(False)
-            file_extension = self.__set_file_extension_lower()
+            filename = self.__file.set_filename(False)
+            file_extension = self.__file.set_file_extension_lower()
 
         url = self.__base_uri + "/stp/space-weather/solar-data/"
         url += "solar-features/solar-radio/rstn-1-second/"
@@ -228,7 +112,7 @@ class RSTNDownloader:
 
         return url
 
-    def __download(self, upper):
+    def __download(self, upper: bool) -> str:
         """Downloads the gzipped file.
 
         Returns
@@ -244,21 +128,23 @@ class RSTNDownloader:
         """
 
         url = self.__set_url(upper)
-        filename = self.__set_filename(upper)
+        filename = self.__file.set_filename(upper)
 
         if upper:
-            filename += self.__set_file_extension_upper()
+            filename += self.__file.set_file_extension_upper()
         else:
-            filename += self.__set_file_extension_lower()
+            filename += self.__file.set_file_extension_lower()
 
         r = get(url, allow_redirects=False)
         if r.status_code != 200:
             raise HTTPError(url, r.status_code, "HTTP error", r.headers, "")
 
-        open(filename, 'wb').write(r.content)
+        with open(filename, 'wb') as fp:
+            fp.write(r.content)
+
         return filename
 
-    def download_file(self):
+    def download_file(self) -> str:
         """Downloads the file via https.
 
         Tries to download with the file extension in upper case.
@@ -278,14 +164,13 @@ class RSTNDownloader:
 
         try:
             filename = self.__download(upper=True)
-            os.rename(filename, Path(self.path.joinpath(filename)))
         except HTTPError:
             try:
                 filename = self.__download(upper=False)
-                os.rename(filename, Path(self.path.joinpath(filename)))
             except HTTPError:
                 url = self.__set_url(upper=False)
                 raise FileNotFoundOnServer(
                     "The file on: " + url + " was not found on server.")
-
-        return filename
+        finally:
+            Path(filename).rename(self.path.joinpath(filename))
+            return filename

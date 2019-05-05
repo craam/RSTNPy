@@ -3,7 +3,7 @@ from urllib.error import HTTPError
 
 from requests import get
 
-from .exceptions import FileNotFoundOnServer
+from .exceptions import FileNotFoundOnServerError
 from .rstnfile import RSTNFile
 
 
@@ -169,7 +169,7 @@ class RSTNDownloader:
                 filename = self.__download(upper=False)
             except HTTPError:
                 url = self.__set_url(upper=False)
-                raise FileNotFoundOnServer(
+                raise FileNotFoundOnServerError(
                     "The file on: " + url + " was not found on server.")
 
         Path(filename).rename(self.path.joinpath(filename))

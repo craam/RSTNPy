@@ -16,16 +16,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 
-class FileNotFoundOnServer(Exception):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class FileNotFoundOnServerError(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
 
 
 class FilenameNotSetError(Exception):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args):
+        super().__init__(*args)
 
 
 class DataFrameNotCreatedError(Exception):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args):
+        super().__init__(*args)

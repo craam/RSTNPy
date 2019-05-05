@@ -163,6 +163,14 @@ class RSTN:
 
         return number
 
+    @staticmethod
+    def is_gzippep(filename: Path) -> bool:
+        try:
+            gzip.open(filename, 'rb').read()
+            return True
+        except OSError:
+            return False
+
     def decompress_file(self, filename: str) -> str:
         """Gets gzipped file content.
 
@@ -178,6 +186,10 @@ class RSTN:
         """
 
         path_to_gzip = self.path.joinpath(filename)
+
+        if not self.is_gzippep(path_to_gzip):
+            self.__file.name = filename
+            return filename
 
         with gzip.open(path_to_gzip, 'rb') as gzipped_file:
             file_content = gzipped_file.read()

@@ -1,9 +1,10 @@
 from pathlib import Path
+from typing import Union
 from urllib.error import HTTPError
 
 from requests import get
 
-from .exceptions import FileNotFoundOnServerError
+from .exceptions import FileNotFoundOnServerError, InvalidDateError
 from .rstnfile import RSTNFile
 
 
@@ -58,7 +59,7 @@ class RSTNDownloader:
             }
         }
 
-    def file_exists(self) -> bool:
+    def file_exists(self) -> Union[bool, str]:
         """Checks if the file exists.
 
         Returns
@@ -74,10 +75,10 @@ class RSTNDownloader:
             False) + self.__file.set_file_extension_lower(False)
 
         if Path(self.path.joinpath(filename_upper)).exists():
-            return True
+            return filename_upper
 
         if Path(self.path.joinpath(filename_lower)).exists():
-            return True
+            return filename_lower
 
         return False
 
@@ -157,10 +158,19 @@ class RSTNDownloader:
 
         Raises
         ------
-        FileNotFoundOnServer
+        InvalidDateError
+            If the date is not valid
+
+        FileNotFoundOnServerError
             If the file does not exist in noaa's website.
 
         """
+
+        if not self.__file.is_date_valid():
+            raise InvalidDateError("Invalid date")
+
+        if self.file_exists():
+            return self.file_exists()
 
         try:
             filename = self.__download(upper=True)

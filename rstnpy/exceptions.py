@@ -29,3 +29,7 @@ class FilenameNotSetError(Exception):
 class DataFrameNotCreatedError(Exception):
     def __init__(self, *args):
         super().__init__(*args)
+
+class InvalidDateError(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)

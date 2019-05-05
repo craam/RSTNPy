@@ -1,3 +1,5 @@
+from datetime import datetime
+
 class RSTNFile:
     """
 
@@ -156,3 +158,22 @@ class RSTNFile:
         """
 
         return station.lower().replace(' ', '-')
+
+    def is_date_valid(self):
+        """Checks if date is valid
+
+        Returns
+        -------
+        bool
+            If the date is valid.
+
+        """
+
+        try:
+            year = int(self.year)
+            month = int(self.month)
+            day = int(self.day)
+            datetime(year, month, day)
+            return True
+        except ValueError:
+            return False

@@ -1,0 +1,71 @@
+* RSTNPy
+
+Library to work with RSTN 1 second data. Working for data after 2000.
+The library provides the possibility of downloading the file for a
+given day from any of RSTN stations, and it is also able to generate a
+dataframe with the data.
+
+** Installation
+
+#+BEGIN_SRC bash
+pip install rstnpy
+#+END_SRC
+
+** Dependencies
+
+- pandas >= 0.21
+- requests >= 2.20
+- numpy >= 1.13
+- matplotlib >= 2.2.2
+
+** How to use it
+
+#+BEGIN_SRC python
+import matplotlib.pyplot as plt
+
+from rstnpy import RSTN
+
+year = 2014
+month = 10
+day = 16
+path_to_files = "data/"
+station = "San vito"
+
+rstn = RSTN(year, month, day, path_to_files, station)
+
+# Search and download the file.
+filename = rstn.downloader.download_file()
+
+# Decompress the gzipped file into a text file.
+filename = rstn.decompress_file(filename)
+
+# Generate a dataframe from the data.
+df = rstn.create_dataframe()
+
+# Plot the data.
+ax = rstn.plot()
+
+plt.plot()
+#+END_SRC
+
+** Known issues
+
+There is a bug when we download the file. The bug itself *does not*
+*affect the functionality* as it is an ignored exception. It is a
+apparently a tempfile bug.
+
+Traceback example running with python 3.6.
+
+#+BEGIN_SRC python
+Exception ignored in: <bound method _TemporaryFileCloser.__del__ of <tempfile._TemporaryFileCloser object at 0x7f2ba52df320>>
+Traceback (most recent call last):
+  File "/usr/lib/python3.6/tempfile.py", line 591, in __del__
+    self.close()
+  File "/usr/lib/python3.6/tempfile.py", line 584, in close
+    self.file.close()
+AttributeError: 'str' object has no attribute 'close'
+#+END_SRC
+
+** Compatibility
+
+The library works with Python 3.5+

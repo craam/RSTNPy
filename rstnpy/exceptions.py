@@ -15,7 +15,22 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from .rstn import GetRSTN
 
-name = "getrstn"
-__version__ = "0.6.2"
+class FileNotFoundOnServerError(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
+class FilenameNotSetError(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
+class DataFrameNotCreatedError(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
+class InvalidDateError(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)

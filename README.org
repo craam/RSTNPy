@@ -1,7 +1,5 @@
 #+TITLE: RSTNPy
 
-* RSTNPy
-
 Library to work with RSTN 1 second data. Working for data after 2000.
 The library provides the possibility of downloading the file for a
 given day from any of RSTN stations, and it is also able to generate a

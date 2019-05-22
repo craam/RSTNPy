@@ -149,11 +149,11 @@ class RSTNDownloader:
 
         """
 
-        if not self.__file.is_date_valid():
-            raise InvalidDateError("Invalid date")
-
         if self.file_exists():
             return self.file_exists()
+
+        if not self.__file.is_date_valid():
+            raise InvalidDateError("Invalid date")
 
         try:
             filename = self.__download(upper=True)

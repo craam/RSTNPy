@@ -1,5 +1,4 @@
 import gzip
-import os
 
 from datetime import datetime
 from pathlib import Path
@@ -197,7 +196,7 @@ class RSTN:
             with Path(self.path.joinpath(final_name)).open("wb") as final_file:
                 final_file.write(file_content)
 
-        os.remove(Path(self.path.joinpath(filename)))
+        Path(self.path.joinpath(filename)).unlink()
 
         self.__file.name = final_name
 

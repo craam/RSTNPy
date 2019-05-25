@@ -5,7 +5,7 @@ with open("README.org", "r") as readme:
 
 setup(
     name="rstnpy",
-    version="1.0",
+    version="1.1",
     author="Edison Neto",
     author_email="ednetoali@gmail.com",
     description="Library used to work with rstn-1-second data",

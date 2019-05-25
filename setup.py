@@ -1,15 +1,14 @@
 from setuptools import setup
 
-with open("README.org", "r") as readme:
-    long_description = readme.read()
+description = "Library used to work with rstn-1-second data"
 
 setup(
     name="rstnpy",
     version="1.1",
     author="Edison Neto",
     author_email="ednetoali@gmail.com",
-    description="Library used to work with rstn-1-second data",
-    long_description=long_description,
+    description=description,
+    long_description=description,
     url="https://github.com/craam/rstnpy",
     packages=['rstnpy'],
     include_package_data=True,

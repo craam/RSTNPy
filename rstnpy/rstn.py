@@ -1,5 +1,4 @@
 import gzip
-import os
 
 from datetime import datetime
 from pathlib import Path
@@ -194,10 +193,10 @@ class RSTN:
         with gzip.open(path_to_gzip, 'rb') as gzipped_file:
             file_content = gzipped_file.read()
             final_name = filename.split('.gz')[0]
-            with Path(self.path.joinpath(final_name)).open("wb") as final_file:
+            with self.path.joinpath(final_name).open("wb") as final_file:
                 final_file.write(file_content)
 
-        os.remove(Path(self.path.joinpath(filename)))
+        self.path.joinpath(filename).unlink()
 
         self.__file.name = final_name
 
@@ -254,7 +253,7 @@ class RSTN:
 
         interval = self.__set_column_interval()
 
-        with Path(self.path.joinpath(self.__file.name)).open("r") as fp:
+        with self.path.joinpath(self.__file.name).open("r") as fp:
             for line in fp.readlines():
                 year = int(line[4:8])
                 month = int(line[8:10])

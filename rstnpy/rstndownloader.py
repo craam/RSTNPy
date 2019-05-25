@@ -57,10 +57,10 @@ class RSTNDownloader:
         filename_lower = self.__file.set_filename(
             False) + self.__file.set_file_extension_lower(False)
 
-        if Path(self.path.joinpath(filename_upper)).exists():
+        if self.path.joinpath(filename_upper).exists():
             return filename_upper
 
-        if Path(self.path.joinpath(filename_lower)).exists():
+        if self.path.joinpath(filename_lower).exists():
             return filename_lower
 
         return False
